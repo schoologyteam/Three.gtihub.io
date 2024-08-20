@@ -709,7 +709,8 @@ bool CGame::ReInitGameObjectVariables(bool load)
 	CHeli::InitHelis();
 	CMovingThings::Init();
 	CDarkel::Init();
-	CStats::Init();
+	if(!load) // erase loaded stats bug
+		CStats::Init();
 	CPickups::Init();
 	CPacManPickups::Init();
 	if (!load)
