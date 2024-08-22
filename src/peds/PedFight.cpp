@@ -31,6 +31,31 @@ RpClump* flyingClumpTemp;
 
 FightMove tFightMoves[NUM_FIGHTMOVES] =
 {
+	//fistfite.dat (init/load in CPed::LoadFightData(void))
+    { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+	
+	// default anim name not init/load animId! Hardcode (Katana bug mazahaka fix)
+	{ ANIM_ATTACK_1, 4.f/30.f, 7.f/30.f, 10.f/30.f, 0.4f, 1.0f, HITLEVEL_HIGH, 1, 0 }, // 9  Attack1 H: Animation Name "default" !!! WEAPON_knife_1
+	{ ANIM_ATTACK_2, 4.f/30.f, 7.f/30.f, 10.f/30.f, 0.4f, 1.0f, HITLEVEL_HIGH, 1, 0 }, // 10 Attack2 H: Animation Name "default" !!! WEAPON_knife_2
+	{ ANIM_ATTACK_3, 4.f / 30.f, 7.f / 30.f, 10.f / 30.f, 0.4f, 1.0f, HITLEVEL_HIGH, 1, 0 }, // 11 Attack3 H: Animation Name "default" !!! WEAPON_knife_3
+    
+	{ ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+	
 /*
   { ANIM_STD_NUM,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f, HITLEVEL_NULL, 0, 0 },
   { ANIM_STD_PUNCH, 0.2f, 8.f/30.f, 0.0f, 0.3f, 1.0f, HITLEVEL_HIGH, 1, 0 },
