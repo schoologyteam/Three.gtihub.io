@@ -409,6 +409,7 @@ GenericLoad()
 	ReadDataFromBlock("Loading Player Info \n", CWorld::Players[CWorld::PlayerInFocus].LoadPlayerInfo);
 	LoadSaveDataBlock();
 	ReadDataFromBlock("Loading Stats \n", CStats::LoadStats);
+	assert(*CStats::LastMissionPassedName); // reinit after load bug. After load CStats was empty Mazahaka
 	//LoadSaveDataBlock();
 	//ReadDataFromBlock("Loading Set Pieces \n", CSetPieces::Load);
 	//LoadSaveDataBlock();
