@@ -6,6 +6,9 @@
 #include "Sprite2d.h"
 #include "Font.h"
 #include "RenderBuffer.h"
+#ifdef TRANSPARENT_MENU
+#include "Frontend.h"
+#endif
 
 float CSprite2d::RecipNearClip;
 float CSprite2d::NearScreenZ;
@@ -79,6 +82,16 @@ CSprite2d::Draw(float x, float y, float w, float h, const CRGBA &col)
 	SetRenderState();
 	RwIm2DRenderPrimitive(rwPRIMTYPETRIFAN, CSprite2d::maVertices, 4);
 }
+
+#ifdef TRANSPARENT_MENU
+// HOOKED FOR SPEC MENU DRAW CALL
+void
+CSprite2d::HKMenuDraw(const CRect &rect, const CRGBA &col)
+{
+	bool IsLoadedGameMenuRender = FrontEndMenuManager.m_bMenuActive && (!FrontEndMenuManager.m_bGameNotLoaded);
+	if(!IsLoadedGameMenuRender) { this->Draw(rect, col); }
+}
+#endif
 
 void
 CSprite2d::Draw(const CRect &rect, const CRGBA &col)

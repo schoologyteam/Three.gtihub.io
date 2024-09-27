@@ -22,6 +22,10 @@ public:
 	void SetTexture(const char *name, const char *mask);
 	void SetAddressing(RwTextureAddressMode addr);
 	void Draw(float x, float y, float w, float h, const CRGBA &col);
+#ifdef TRANSPARENT_MENU
+	void HKMenuDraw(const CRect &rect, const CRGBA &col); // ++ mazahaka menu
+#endif
+
 	void Draw(const CRect &rect, const CRGBA &col);
 	void Draw(const CRect &rect, const CRGBA &col,
 		float u0, float v0, float u1, float v1, float u3, float v3, float u2, float v2);

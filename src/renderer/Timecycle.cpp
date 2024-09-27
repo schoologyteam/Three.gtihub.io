@@ -586,7 +586,8 @@ CTimeCycle::Update(void)
 #define INTERPscl(extra,scl,cur) (m_ExtraColourInter*extra[m_ExtraColour][WEATHER_EXTRACOLOURS]/scl + (1.0f-m_ExtraColourInter)*cur)
 		if(m_nSkyTopRed[m_ExtraColour][WEATHER_EXTRACOLOURS] != 0 ||
 		   m_nSkyTopGreen[m_ExtraColour][WEATHER_EXTRACOLOURS] != 0 ||
-		   m_nSkyTopBlue[m_ExtraColour][WEATHER_EXTRACOLOURS] != 0){
+		   m_nSkyTopBlue[m_ExtraColour][WEATHER_EXTRACOLOURS] != 0)
+		{
 			m_nCurrentSkyTopRed = INTERP(m_nSkyTopRed,m_nCurrentSkyTopRed);
 			m_nCurrentSkyTopGreen = INTERP(m_nSkyTopGreen,m_nCurrentSkyTopGreen);
 			m_nCurrentSkyTopBlue = INTERP(m_nSkyTopBlue,m_nCurrentSkyTopBlue);

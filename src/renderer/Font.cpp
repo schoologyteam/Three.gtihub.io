@@ -618,6 +618,7 @@ CFont::PrintStringFromBottom(float x, float y, wchar *str)
 void
 CFont::PrintString(float xstart, float ystart, wchar *s)
 {
+	if(!s) { debug("!s PrintString() \n"); return; }
 	CRect rect;
 	int numSpaces;
 	float lineLength;

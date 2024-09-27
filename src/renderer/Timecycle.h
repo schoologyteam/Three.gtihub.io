@@ -2,6 +2,7 @@
 
 class CTimeCycle
 {
+public: // mazahaka
 	static uint8 m_nAmbientRed[NUMHOURS][NUMWEATHERS];
 	static uint8 m_nAmbientGreen[NUMHOURS][NUMWEATHERS];
 	static uint8 m_nAmbientBlue[NUMHOURS][NUMWEATHERS];

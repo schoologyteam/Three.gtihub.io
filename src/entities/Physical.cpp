@@ -113,6 +113,10 @@ CPhysical::Add(void)
 	assert(xend < NUMSECTORS_X);
 	assert(ystart >= 0);
 	assert(yend < NUMSECTORS_Y);
+	//debug("mi %d\n", GetModelIndex());
+	//debug("Bounds: left = %f, right = %f, top = %f, bottom = %f\n", bounds.left, bounds.right, bounds.top, bounds.bottom);
+	//debug("CPhysical::Add &&&%d, %d, %d, %d\n", xstart, xend, ystart, yend);
+	//debug("CPhysical::pos &&&%d, %d, %d\n", GetPosition().x, GetPosition().y, GetPosition().z);
 
 	for(y = ystart; y <= yend; y++)
 		for(x = xstart; x <= xend; x++){
@@ -165,7 +169,7 @@ CPhysical::Remove(void)
 	}
 }
 
-static void
+/*static void
 MoveVehicleToSafety(CVehicle* pVehicle)
 {
 	if (pVehicle->VehicleCreatedBy != MISSION_VEHICLE) {
@@ -194,9 +198,9 @@ MovePedToSafety(CPed* pPed)
 		pPed->Teleport(nodePos + CVector(0.0f, 0.0f, pPed->GetDistanceFromCentreOfMassToBaseOfModel()));
 		CTheScripts::ClearSpaceForMissionEntity(nodePos, pPed);
 	}
-}
+}*/
 
-void
+/*void
 CPhysical::RemoveAndAdd(void)
 {
 	int x, xstart, xmid, xend;
@@ -312,7 +316,85 @@ CPhysical::RemoveAndAdd(void)
 		node->list->DeleteNode(node->listnode);
 		m_entryInfoList.DeleteNode(node);
 	}
+}*/
+
+void
+CPhysical::RemoveAndAdd(void)
+{
+	int x, xstart, xmid, xend;
+	int y, ystart, ymid, yend;
+	CSector *s;
+	CPtrList *list;
+
+	CRect bounds = GetBoundRect();
+	xstart = CWorld::GetSectorIndexX(bounds.left);
+	xend   = CWorld::GetSectorIndexX(bounds.right);
+	xmid   = CWorld::GetSectorIndexX((bounds.left + bounds.right)/2.0f);
+	ystart = CWorld::GetSectorIndexY(bounds.top);
+	yend   = CWorld::GetSectorIndexY(bounds.bottom);
+	ymid   = CWorld::GetSectorIndexY((bounds.top + bounds.bottom)/2.0f);
+	assert(xstart >= 0);
+	assert(xend < NUMSECTORS_X);
+	assert(ystart >= 0);
+	assert(yend < NUMSECTORS_Y);
+	//debug("mi %d\n", GetModelIndex());
+	//debug("Bounds: left = %f, right = %f, top = %f, bottom = %f\n", bounds.left, bounds.right, bounds.top, bounds.bottom);
+	//debug("CPhysical::RemoveAndAdd &&&%d, %d, %d, %d\n", xstart, xend, ystart, yend);
+	//debug("CPhysical::RemoveAndAdd &&&%d, %d, %d\n", GetPosition().x, GetPosition().y, GetPosition().z);
+
+	//[DBG]: Bounds: left = -1.250000, right = 1.250000, top = -1.250000, bottom = 1.250000
+	//[DBG]: CPhysical::Add &&&49, 50, 49, 50
+	//[DBG]: CPhysical::RemoveAndAdd &&&0.000000, 0.000000, 0.000000
+
+	// we'll try to recycle nodes from here
+	CEntryInfoNode *next = m_entryInfoList.first;
+
+	for(y = ystart; y <= yend; y++)
+		for(x = xstart; x <= xend; x++){
+			s = CWorld::GetSector(x, y);
+			if(x == xmid && y == ymid) switch(m_type){
+			case ENTITY_TYPE_VEHICLE:
+				list = &s->m_lists[ENTITYLIST_VEHICLES];
+				break;
+			case ENTITY_TYPE_PED:
+				list = &s->m_lists[ENTITYLIST_PEDS];
+				break;
+			case ENTITY_TYPE_OBJECT:
+				list = &s->m_lists[ENTITYLIST_OBJECTS];
+				break;
+			}else switch(m_type){
+			case ENTITY_TYPE_VEHICLE:
+				list = &s->m_lists[ENTITYLIST_VEHICLES_OVERLAP];
+				break;
+			case ENTITY_TYPE_PED:
+				list = &s->m_lists[ENTITYLIST_PEDS_OVERLAP];
+				break;
+			case ENTITY_TYPE_OBJECT:
+				list = &s->m_lists[ENTITYLIST_OBJECTS_OVERLAP];
+				break;
+			}
+			if(next){
+				// If we still have old nodes, use them
+				next->list->RemoveNode(next->listnode);
+				list->InsertNode(next->listnode);
+				next->list = list;
+				next->sector = s;
+				next = next->next;
+			}else{
+				CPtrNode *node = list->InsertItem(this);
+				m_entryInfoList.InsertItem(list, node, s);
+			}
+		}
+
+	// Remove old nodes we no longer need
+	CEntryInfoNode *node;
+	for(node = next; node; node = next){
+		next = node->next;
+		node->list->DeleteNode(node->listnode);
+		m_entryInfoList.DeleteNode(node);
+	}
 }
+
 
 CRect
 CPhysical::GetBoundRect(void)

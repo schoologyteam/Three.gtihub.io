@@ -221,6 +221,7 @@ CEntity::GetBoundRect(void)
 	CRect rect;
 	CVector v;
 	CColModel *col = CModelInfo::GetColModel(m_modelIndex);
+	assert(col);
 
 	rect.ContainPoint(GetMatrix() * col->boundingBox.min);
 	rect.ContainPoint(GetMatrix() * col->boundingBox.max);
@@ -520,10 +521,15 @@ CEntity::IsVisibleComplex(void)
 	return m_rwObject && bIsVisible && GetIsOnScreenComplex();
 }
 
+__declspec(noinline) 
 bool
 CEntity::GetIsOnScreen(void)
 {
-	return TheCamera.IsSphereVisible(GetBoundCentre(), GetBoundRadius());
+	//return TheCamera.IsSphereVisible(GetBoundCentre(), GetBoundRadius());
+	if(!CModelInfo::GetColModel(m_modelIndex)) { return false; }
+	auto a = GetBoundCentre();
+	auto b = GetBoundRadius();
+	return TheCamera.IsSphereVisible(a, b);
 }
 
 bool
@@ -697,7 +703,7 @@ CEntity::GetDistanceFromCentreOfMassToBaseOfModel(void)
 	return -CModelInfo::GetColModel(m_modelIndex)->boundingBox.min.z;
 }
 
-void
+/*void
 CEntity::SetupBigBuilding(void)
 {
 	CSimpleModelInfo *mi;
@@ -718,6 +724,24 @@ CEntity::SetupBigBuilding(void)
 		m_level = LEVEL_GENERIC;
 //	else if(m_level == LEVEL_GENERIC)
 //		printf("%s isn't in a level\n", mi->GetModelName());
+}*/
+
+void
+CEntity::SetupBigBuilding(void)
+{
+	CSimpleModelInfo *mi;
+
+	mi = (CSimpleModelInfo*)CModelInfo::GetModelInfo(m_modelIndex);
+	bIsBIGBuilding = true;
+	bStreamingDontDelete = true;
+	bUsesCollision = false;
+	m_level = CTheZones::GetLevelFromPosition(&GetPosition());
+	if(mi->m_lodDistances[0] <= 2000.0f)
+		bStreamBIGBuilding = true;
+	if(mi->m_lodDistances[0] > 2500.0f || mi->m_ignoreDrawDist)
+		m_level = LEVEL_GENERIC;
+	else if(m_level == LEVEL_GENERIC)
+		printf("%s isn't in a level\n", mi->GetModelName());
 }
 
 float WindTabel[] = {

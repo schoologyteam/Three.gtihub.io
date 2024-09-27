@@ -1577,7 +1577,7 @@ CHud::DrawArmourBar(int16 value)
 }
 
 void
-CHud::DrawTimeAndCashNumbers(char *str, float x, float y, bool secondSet)
+CHud::DrawTimeAndCashNumbers(char *str, float x, float y, bool secondSet) // todo MAZAHAKA_HUD_ZERO_MONEY_FIX right
 {
 	CRGBA color(255, 255, 255, m_HudAlpha);
 
@@ -1637,7 +1637,11 @@ void
 CHud::DrawCash()
 {
 	char str[200];
+#ifdef MAZAHAKA_HUD_ZERO_MONEY_FIX
+	sprintf(str, "$%01d", CWorld::Players[CWorld::PlayerInFocus].m_nMoney);
+#else
 	sprintf(str, "$%08d", CWorld::Players[CWorld::PlayerInFocus].m_nMoney);
+#endif
 	DrawTimeAndCashNumbers(str, FrontEndMenuManager.m_PrefsUseWideScreen ? 386.0f : 373.0f, 53.0f, true);
 }
 

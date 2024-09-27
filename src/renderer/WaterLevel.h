@@ -1,6 +1,11 @@
 #pragma once
 
+// lcs
+#ifdef MAZAHAKA_MAPZONE_VC
+#define WATER_X_OFFSET (400.0f)
+#else
 #define WATER_X_OFFSET (0.0f)
+#endif
 
 #define WATER_Z_OFFSET (0.5f)
 
