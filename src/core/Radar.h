@@ -25,14 +25,13 @@
 #define NUM_MAP_LEGENDS 75
 
 #define MENU_MAP_LENGTH_UNIT 1190.0f // in game unit
-#define MENU_MAP_WIDTH_SCALE 1.112f // in game unit (originally 1.112494151260504f)
+#define MENU_MAP_WIDTH_SCALE 1.112f  // in game unit (originally 1.112494151260504f)
 #define MENU_MAP_HEIGHT_SCALE 1.119f // in game unit (originally 1.118714268907563f)
-#define MENU_MAP_TOP_OFFSET 0.28f // in length unit defined above - ~333 game unit
-#define MENU_MAP_LEFT_OFFSET 0.185f // in length unit defined above - ~220 game unit
+#define MENU_MAP_TOP_OFFSET 0.28f    // in length unit defined above - ~333 game unit
+#define MENU_MAP_LEFT_OFFSET 0.185f  // in length unit defined above - ~220 game unit
 #define MENU_MAP_LENGTH (4000.f / MENU_MAP_LENGTH_UNIT)
 
-enum eBlipType
-{
+enum eBlipType {
 	BLIP_NONE,
 	BLIP_CAR,
 	BLIP_CHAR,
@@ -115,8 +114,9 @@ enum eRadarSprite
 	RADAR_SPRITE_MAPHERE5,
 	RADAR_SPRITE_MAPHERE6,
 	RADAR_SPRITE_MAPHERE7,
-	RADAR_SPRITE_MAPWAYPOINT,
-
+#ifdef MAP_ENHANCEMENTS
+	RADAR_SPRITE_WAYPOINT,
+#endif
 	RADAR_SPRITE_COUNT
 };
 
@@ -278,7 +278,7 @@ public:
 	static CSprite2d MapHereSprite5;
 	static CSprite2d MapHereSprite6;
 	static CSprite2d MapHereSprite7;
-	static CSprite2d MapWayPoint;
+	//static CSprite2d MapWayPoint;
 	static CSprite2d *RadarSprites[RADAR_SPRITE_COUNT];
 	static float cachedCos;
 	static float cachedSin;
@@ -288,6 +288,7 @@ public:
 	static int16 MapLegendCounter;
 
 #ifdef MAP_ENHANCEMENTS
+	static CSprite2d WaypointSprite;
 	static int TargetMarkerId;
 	static CVector TargetMarkerPos;
 #endif

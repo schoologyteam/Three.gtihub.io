@@ -360,30 +360,40 @@ CTheZones::FindSmallestNavigationZoneForPosition(const CVector *v, bool findDefa
 	return best;
 }
 
+//#pragma optimize("", off)
 int16
 CTheZones::FindZoneByLabelAndReturnIndex(char *name, eZoneType type)
 {
-	char str[8];
+	char str[8]; // not used
 	memset(str, 0, 8);
 	strncpy(str, name, 8);
 	switch(type){
 	case ZONE_DEFAULT:
 	case ZONE_NAVIG:
 		for(FindIndex = 0; FindIndex < TotalNumberOfNavigationZones; FindIndex++)
+		{
+			// debug("zone dbg: %s\n", GetNavigationZone(FindIndex)->name);
 			if(strcmp(GetNavigationZone(FindIndex)->name, name) == 0)
 				return FindIndex;
+		}
 		break;
 
 	case ZONE_INFO:
 		for(FindIndex = 0; FindIndex < TotalNumberOfInfoZones; FindIndex++)
+		{
+			//debug("zone dbg: %s\n", GetInfoZone(FindIndex)->name);
 			if(strcmp(GetInfoZone(FindIndex)->name, name) == 0)
 				return FindIndex;
+		}
 		break;
 
 	case ZONE_MAPZONE:
 		for(FindIndex = 0; FindIndex < TotalNumberOfMapZones; FindIndex++)
+		{
+			//debug("zone dbg: %s\n", GetMapZone(FindIndex)->name);
 			if(strcmp(GetMapZone(FindIndex)->name, name) == 0)
 				return FindIndex;
+		}
 		break;
 	}
 	return -1;

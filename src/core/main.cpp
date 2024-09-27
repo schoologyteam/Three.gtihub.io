@@ -75,8 +75,16 @@
 #include "custompipes.h"
 #include "screendroplets.h"
 #include "VarConsole.h"
+#include "Radar.h"
 #ifdef USE_OUR_VERSIONING
 #include "GitSHA1.h"
+#endif
+#ifdef MAZAHAKA_FIX_BACKGROUND_APP_NO_HOLD_MOUSE
+	#include "win.h" // IsForegroundApp() not work correct
+	//#include "../../utils/Utils.h"
+	#ifdef MAZAHAKA_FIX_BACKGROUND_APP_NO_HOLD_MOUSE_ALLOW_KEY_NO_HOLD
+		#include "Windows.h"
+	#endif
 #endif
 
 GlobalScene Scene;
@@ -118,7 +126,8 @@ RwRGBA gColourTop;
 bool gameAlreadyInitialised;
 
 float NumberOfChunksLoaded;
-#define TOTALNUMCHUNKS 52.0f
+//#define TOTALNUMCHUNKS 52.0f // lcs
+#define TOTALNUMCHUNKS 78.0f
 
 bool g_SlowMode = false;
 char version_name[64];
@@ -887,6 +896,7 @@ tZonePrint ZonePrint[] =
 	{ "WASHINBTM", "AC", CRect(-255.0f, -1200.0f,  500.0f, -1690.0f)}
 };
 
+
 void
 PrintMemoryUsage(void)
 {
@@ -1068,13 +1078,23 @@ return;
 void
 DisplayGameDebugText()
 {
-	static bool bDisplayCheatStr = false; // custom
+	static bool bDisplayCheatStr = false;
+	static bool bDisplayPosn = false;
+	static bool bDisplayRate = false;
+
+	// mazahaka
+	static bool bDisplayMapPosn = false;
+	static bool bDisplayCamPosn = false;
 
 #ifndef FINAL
 	{
 		SETTWEAKPATH("Debug");
-		TWEAKBOOL(bDisplayPosn);
 		TWEAKBOOL(bDisplayCheatStr);
+		TWEAKBOOL(bDisplayPosn);
+		TWEAKBOOL(bDisplayRate);
+		___tw___TWEAKPATH = "MaZaHaKa";
+		TWEAKBOOL(bDisplayMapPosn);
+		TWEAKBOOL(bDisplayCamPosn);
 	}
 
 	if(gbPrintMemoryUsage)
@@ -1124,25 +1144,43 @@ DisplayGameDebugText()
 #if defined _DEBUG || defined DEBUG
 		    "DEBUG "
 #endif
-		    "%.8s",
-		    g_GIT_SHA1);
+		    ////"%.8s",
+			//"%.40s",
+		    //g_GIT_SHA1
+			"BY MaZaHaKa"
+	);
 	AsciiToUnicode(verA, ver);
 	CFont::SetScale(SCREEN_SCALE_X(0.5f), SCREEN_SCALE_Y(0.7f));
+
+	//CFont::SetScale(SCREEN_SCALE_X(0.3f), SCREEN_SCALE_Y(0.3f));
+	////CFont::SetScale(SCREEN_SCALE_X(0.5f), SCREEN_SCALE_Y(0.7f));	
 #else
-	AsciiToUnicode(version_name, ver);
-	CFont::SetScale(SCREEN_SCALE_X(0.5f), SCREEN_SCALE_Y(0.5f));
+		AsciiToUnicode(version_name, ver);
+		CFont::SetScale(SCREEN_SCALE_X(0.5f), SCREEN_SCALE_Y(0.5f));
 #endif
 
 	CFont::SetPropOn();
 	CFont::SetBackgroundOff();
-	CFont::SetFontStyle(FONT_STANDARD);
+	//CFont::SetFontStyle(FONT_STANDARD);
+	CFont::SetFontStyle(FONT_BANK);
 	CFont::SetCentreOff();
 	CFont::SetRightJustifyOff();
 	CFont::SetWrapx(SCREEN_WIDTH);
 	CFont::SetJustifyOff();
 	CFont::SetBackGroundOnlyTextOff();
-	CFont::SetColor(CRGBA(255, 108, 0, 255));
+
+	CFont::SetColor(CRGBA(0, 0, 0, 255));
+	CFont::PrintString(SCREEN_SCALE_X(10.0f + 2.0f), SCREEN_SCALE_Y(10.0f + 2.0f), ver); // тень
+
+	//CFont::SetColor(CRGBA(255, 108, 0, 255)); // orig lcs
+	//CFont::SetColor(CRGBA(255, 108, 0, 255)); // orig orange
+	CFont::SetColor(CRGBA(39, 152, 7, 255)); // green
+
+#ifdef FIX_BUGS
 	CFont::PrintString(SCREEN_SCALE_X(10.0f), SCREEN_SCALE_Y(10.0f), ver);
+#else
+	CFont::PrintString(10.0f, 10.0f, ver);
+#endif
 	}
 #endif // #ifdef DRAW_GAME_VERSION_TEXT
 
@@ -1164,11 +1202,11 @@ DisplayGameDebugText()
 		FrameSamples = 0;
 	}
 
-	if ( bDisplayPosn )
+if(bDisplayPosn || bDisplayRate || bDisplayMapPosn || bDisplayCamPosn)
 	{
 		CVector pos = FindPlayerCoors();
 		int32 ZoneId = ARRAY_SIZE(ZonePrint)-1; // no zone
-		
+
 		for ( int32 i = 0; i < ARRAY_SIZE(ZonePrint)-1; i++ )
 		{
 			if ( pos.x > ZonePrint[i].rect.left
@@ -1180,28 +1218,69 @@ DisplayGameDebugText()
 			}
 		}
 
-		//NOTE: fps should be 30, but its 29 due to different fp2int conversion 
-		sprintf(str, "X:%4.0f Y:%4.0f Z:%4.0f F-%d %s-%s", pos.x, pos.y, pos.z, (int32)FramesPerSecond,
-			ZonePrint[ZoneId].name, ZonePrint[ZoneId].area);
+		// CUSTOM
 
+		// heading 0-360
+		CPlayerPed *pPed = FindPlayerPed();
+		float angle = pPed->bInVehicle ? pPed->m_pMyVehicle->GetForward().Heading() : pPed->GetForward().Heading();
+		angle = RADTODEG(angle);
+		angle = fmod(angle, 360.0f);
+		if(angle < 0.0f) { angle += 360.0f; }
+		//angle = CGeneral::LimitAngle(RADTODEG(angle));
+
+		// map coords
+		if(bDisplayMapPosn) { pos = (CRadar::TargetMarkerId != -1) ? CRadar::TargetMarkerPos : CVector(0, 0, 0); }
+		if(bDisplayCamPosn) 
+		{
+			pos = CVector(TheCamera.GetPosition());
+			//angle = TheCamera.SetHeading();
+			angle = /*CGeneral::LimitAngle*/(RADTODEG(TheCamera.GetForward().Heading()));
+			//angle = (RADTODEG(TheCamera.GetUp().Heading()));
+			angle = fmod(angle, 360.0f);
+			if(angle < 0.0f) { angle += 360.0f; }
+		}
+		//if(bDisplayCamPosn) { pos = CVector(TheCamera.GetGameCamPosition()); } // ?
+
+		//NOTE: fps should be 30, but its 29 due to different fp2int conversion 
+		if ( bDisplayRate )
+			sprintf(str, "X:%5.1f, Y:%5.1f, Z:%5.1f, F-%d, %s", pos.x, pos.y, pos.z, (int32)FramesPerSecond, ZonePrint[ZoneId].name);
+		else
+			sprintf(str, "X:%5.1f, Y:%5.1f, Z:%5.1f, %d, %s", pos.x, pos.y, pos.z, (int)angle, ZonePrint[ZoneId].name);
+
+		
 		AsciiToUnicode(str, ustr);
 		
-		CFont::SetPropOn();
+		CFont::SetPropOff();
 		CFont::SetBackgroundOff();
-		CFont::SetScale(SCREEN_SCALE_X(0.6f), SCREEN_SCALE_Y(0.8f));
+#ifdef FIX_BUGS
+		CFont::SetScale(SCREEN_SCALE_X(0.7f), SCREEN_SCALE_Y(1.5f));
+#else
+		CFont::SetScale(0.7f, 1.5f);
+#endif
 		CFont::SetCentreOff();
 		CFont::SetRightJustifyOff();
 		CFont::SetJustifyOff();
 		CFont::SetBackGroundOnlyTextOff();
+#ifdef FIX_BUGS
 		CFont::SetWrapx(SCREEN_STRETCH_X(DEFAULT_SCREEN_WIDTH));
-		CFont::SetFontStyle(FONT_STANDARD);
-		CFont::SetDropColor(CRGBA(0, 0, 0, 255));
-		CFont::SetDropShadowPosition(2);
-		CFont::SetColor(CRGBA(0, 0, 0, 255));
-		CFont::PrintString(41.0f, 41.0f, ustr);
+#else
+		CFont::SetWrapx(DEFAULT_SCREEN_WIDTH);
+#endif
+		CFont::SetFontStyle(FONT_HEADING);
 		
-		CFont::SetColor(CRGBA(205, 205, 0, 255));
+		CFont::SetColor(CRGBA(0, 0, 0, 255));
+#ifdef FIX_BUGS
+		CFont::PrintString(SCREEN_SCALE_X(40.0f+2.0f), SCREEN_SCALE_Y(40.0f+2.0f), ustr);
+#else
+		CFont::PrintString(40.0f+2.0f, 40.0f+2.0f, ustr);
+#endif
+		
+		CFont::SetColor(CRGBA(255, 108, 0, 255));
+#ifdef FIX_BUGS
+		CFont::PrintString(SCREEN_SCALE_X(40.0f), SCREEN_SCALE_Y(40.0f), ustr);
+#else
 		CFont::PrintString(40.0f, 40.0f, ustr);
+#endif
 	}
 
 	// custom
@@ -1219,10 +1298,14 @@ DisplayGameDebugText()
 		CFont::SetFontStyle(FONT_STANDARD);
 
 		CFont::SetColor(CRGBA(0, 0, 0, 255));
-		CFont::PrintString(SCREEN_SCALE_X(DEFAULT_SCREEN_WIDTH * 0.5f)+2.f, SCREEN_SCALE_FROM_BOTTOM(20.0f)+2.f, ustr);
+		CFont::PrintString(SCREEN_SCALE_X(40.0f + 2.0f), SCREEN_SCALE_Y(40.0f + 2.0f), ustr);
+		//CFont::PrintString(SCREEN_SCALE_X(DEFAULT_SCREEN_WIDTH * 0.5f)+2.f, SCREEN_SCALE_FROM_BOTTOM(20.0f)+2.f, ustr);
 
-		CFont::SetColor(CRGBA(255, 150, 225, 255));
-		CFont::PrintString(SCREEN_SCALE_X(DEFAULT_SCREEN_WIDTH * 0.5f), SCREEN_SCALE_FROM_BOTTOM(20.0f), ustr);
+		//CFont::SetColor(CRGBA(255, 150, 225, 255)); // revc
+		CFont::SetColor(CRGBA(255, 108, 0, 255)); // re3
+
+		//CFont::PrintString(SCREEN_SCALE_X(DEFAULT_SCREEN_WIDTH * 0.5f), SCREEN_SCALE_FROM_BOTTOM(20.0f), ustr);
+		CFont::PrintString(SCREEN_SCALE_X(40.0f), SCREEN_SCALE_Y(40.0f), ustr);
 	}
 }
 #endif
@@ -1374,6 +1457,13 @@ RenderScene(void)
 	POP_RENDERGROUP();
 }
 
+#ifdef TRANSPARENT_MENU // ||
+#ifdef TRANSPARENT_MENU_HUD_RENDER
+void RenderDebugShit(void);
+void HKMenuRenderDebugShit(void) { if(!FrontEndMenuManager.m_bMenuActive) { RenderDebugShit(); } }
+#endif
+#endif
+
 void
 RenderDebugShit(void)
 {
@@ -1417,6 +1507,13 @@ RenderEffects(void)
 	CRenderer::RenderFirstPersonVehicle();
 	POP_RENDERGROUP();
 }
+
+#ifdef TRANSPARENT_MENU // ||
+#ifdef TRANSPARENT_MENU_HUD_RENDER
+void Render2dStuff(void);
+void HKMenuRender2dStuff(void) { if (!FrontEndMenuManager.m_bMenuActive) { Render2dStuff(); } }
+#endif
+#endif
 
 void
 Render2dStuff(void)
@@ -1568,14 +1665,40 @@ Idle(void *arg)
 
 	PUSH_MEMID(MEMID_RENDER);
 
+#ifdef TRANSPARENT_MENU
+	bool FrontEndMenuManager_m_bRenderGameInMenu = true; // or if !render render = 1
+	if((!FrontEndMenuManager.m_bMenuActive || FrontEndMenuManager_m_bRenderGameInMenu) && TheCamera.GetScreenFadeStatus() != FADE_2)
+#else
 	if(!FrontEndMenuManager.m_bMenuActive && TheCamera.GetScreenFadeStatus() != FADE_2)
+#endif
 	{
-		// This is from SA, but it's nice for windowed mode
-#if defined(GTA_PC) && !defined(RW_GL3)
-		RwV2d pos;
-		pos.x = SCREEN_WIDTH / 2.0f;
-		pos.y = SCREEN_HEIGHT / 2.0f;
-		RsMouseSetPos(&pos);
+#if defined(GTA_PC) && !defined(RW_GL3) && defined(FIX_BUGS)
+		// This is from SA, but it's nice for windowed mode [MAZAHAKA: NO!]
+		//if(!FrontEndMenuManager.m_bRenderGameInMenu)
+
+#ifdef MAZAHAKA_FIX_BACKGROUND_APP_NO_HOLD_MOUSE
+		//printf("fore: %d\n", IsForegroundApp()); // LOL print 1 at alt tab 
+		//if((!FrontEndMenuManager.GetIsMenuActive()) && IsForegroundApp()) // IsForegroundApp 1
+		//if(!FrontEndMenuManager.GetIsMenuActive()) // default
+		//HWND window = ((psGlobalType *)(RsGlobal.ps))->window; //PSGLOBAL(window)
+#ifdef MAZAHAKA_FIX_BACKGROUND_APP_NO_HOLD_MOUSE_ALLOW_KEY_NO_HOLD
+		bool bIsPressingUnHoldKey = (GetAsyncKeyState(VK_F4) & 0x8000);
+#endif
+		if((!FrontEndMenuManager.GetIsMenuActive())
+			&& CheckWindowStateIsOpenedMaZaHaKa()
+#ifdef MAZAHAKA_FIX_BACKGROUND_APP_NO_HOLD_MOUSE_ALLOW_KEY_NO_HOLD
+		   && (!bIsPressingUnHoldKey)
+#endif
+			)
+#else
+		if(!FrontEndMenuManager.GetIsMenuActive())
+#endif
+		{ // ++ mazahaka fix
+			RwV2d pos;
+			pos.x = SCREEN_WIDTH / 2.0f;
+			pos.y = SCREEN_HEIGHT / 2.0f;
+			RsMouseSetPos(&pos); // не даёт курсор на другой монитор
+		}
 #endif
 
 		tbStartTimer(0, "CnstrRenderList");
@@ -1584,7 +1707,19 @@ Idle(void *arg)
 #endif
 		CWorld::AdvanceCurrentScanCode();
 		CRenderer::ClearForFrame();
+
+		// TODO  mazahaka menu
+#ifdef TRANSPARENT_MENU // ||
+#ifdef TRANSPARENT_MENU_HUD_RENDER
+		// CRenderer::HKMenuConstructRenderList(); // from wsfix wtf? nw
 		CRenderer::ConstructRenderList();
+#else
+		CRenderer::ConstructRenderList();
+#endif
+#else
+		CRenderer::ConstructRenderList();
+#endif
+		//CRenderer::ConstructRenderList();
 		tbEndTimer("CnstrRenderList");
 
 		tbStartTimer(0, "PreRender");
@@ -1623,7 +1758,17 @@ Idle(void *arg)
 		CustomPipes::EnvMapRender();
 #endif
 
+#ifdef TRANSPARENT_MENU // ||
+#ifdef TRANSPARENT_MENU_HUD_RENDER
+		HKMenuRenderDebugShit();
+#else
 		RenderDebugShit();
+#endif
+#else
+		RenderDebugShit();
+#endif
+
+		// RenderDebugShit(); // mazahaka menu hook   [if bMenuVisible render]
 		RenderEffects();
 
 		if((TheCamera.m_BlurType == MOTION_BLUR_NONE || TheCamera.m_BlurType == MOTION_BLUR_LIGHT_SCENE) &&
@@ -1641,7 +1786,16 @@ Idle(void *arg)
 		tbEndTimer("RenderMotionBlur");
 
 		tbStartTimer(0, "Render2dStuff");
+#ifdef TRANSPARENT_MENU // ||
+#ifdef TRANSPARENT_MENU_HUD_RENDER
+		HKMenuRender2dStuff();
+#else
 		Render2dStuff();
+#endif
+#else
+		Render2dStuff();
+#endif
+		// Render2dStuff(); // mazahaka menu hook   [HUD] [if bMenuVisible render]
 		tbEndTimer("Render2dStuff");
 	}else{
 		CDraw::CalculateAspectRatio();
@@ -1726,7 +1880,10 @@ void
 InitialiseGame(void)
 {
 	LoadingScreen(nil, nil, "loadsc0");
-	CGame::Initialise("DATA\\GTA_VC.DAT");
+	//CGame::Initialise("DATA\\LCS\\GTA_LCS.DAT"); // anti europe detect
+	//CGame::Initialise("DATA\\GTA_LLCS.DAT"); // anti europe detect 
+	//CGame::Initialise("DATA\\GTA_LCS.DAT");
+	CGame::Initialise("DATA\\GTA_VCS.DAT");
 }
 
 RsEventStatus

@@ -29,6 +29,7 @@ public:
 		node->prev = nil;
 		node->next = first;
 		if(first)
+
 			first->prev = node;
 		first = node;
 		return node;

@@ -23,6 +23,7 @@
 #include "Shadows.h"
 #include "TempColModels.h"
 #include "WaterLevel.h"
+#include "FerrisWheel.h"
 #include "World.h"
 
 #define OBJECT_REPOSITION_OFFSET_Z 2.0f
@@ -1747,6 +1748,7 @@ CWorld::ShutDown(void)
 void
 CWorld::ClearForRestart(void)
 {
+	CFerrisWheel::Shutdown(); // vcs
 	if(CCutsceneMgr::HasLoaded()) CCutsceneMgr::DeleteCutsceneData();
 	CProjectileInfo::RemoveAllProjectiles();
 	CObject::DeleteAllTempObjects();

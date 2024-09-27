@@ -42,6 +42,9 @@ void
 CDirectory::AddItem(const DirectoryInfo &dirinfo)
 {
 	assert(numEntries < maxEntries);
+	/*if(!(numEntries < maxEntries)) { 
+		debug("");
+	}*/
 #ifdef FIX_BUGS
 	// don't add if already exists
 	uint32 offset, size;

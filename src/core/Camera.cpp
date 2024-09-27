@@ -1776,6 +1776,7 @@ CCamera::CamControl(void)
 void
 CCamera::UpdateTargetEntity(void)
 {
+	//if(!PLAYER) { return; }
 	bool enteringCar = false;
 	bool obbeCam = false;
 

@@ -22,6 +22,11 @@
 #include "Font.h"
 #include "SaveBuf.h"
 
+//--mazahaka
+#include "rwcore.h"
+#include "rwplcore.h"
+#include "rpanisot.h"
+
 float CRadar::m_radarRange;
 sRadarTrace CRadar::ms_RadarTrace[NUMRADARBLIPS];
 CVector2D vec2DRadarOrigin;
@@ -97,7 +102,10 @@ CSprite2d CRadar::MapHereSprite4;
 CSprite2d CRadar::MapHereSprite5;
 CSprite2d CRadar::MapHereSprite6;
 CSprite2d CRadar::MapHereSprite7;
-CSprite2d CRadar::MapWayPoint;
+//CSprite2d CRadar::MapWayPoint;
+#ifdef MAP_ENHANCEMENTS
+CSprite2d CRadar::WaypointSprite;
+#endif
 
 CSprite2d *CRadar::RadarSprites[RADAR_SPRITE_COUNT] = { 
 	nil,
@@ -162,7 +170,10 @@ CSprite2d *CRadar::RadarSprites[RADAR_SPRITE_COUNT] = {
 	&MapHereSprite5,
 	&MapHereSprite6,
 	&MapHereSprite7,
-	&MapWayPoint,
+	//&MapWayPoint,
+#ifdef MAP_ENHANCEMENTS
+    &WaypointSprite,
+#endif
 };
 
 // Why this doesn't coincide with world coordinates i don't know
@@ -576,7 +587,8 @@ void CRadar::Draw3dMarkers()
 	}
 }
 
-void CRadar::DrawBlips()
+
+void CRadar::DrawBlips() //----------------------- отрисовка иконок на карте
 {
 	if (!TheCamera.m_WideScreenOn && CHud::m_Wants_To_Draw_Hud) {
 #ifdef SECUROM
@@ -605,7 +617,7 @@ void CRadar::DrawBlips()
 			else
 				angle = FindPlayerHeading() - (PI + TheCamera.GetForward().Heading());
 
-			DrawRotatingRadarSprite(&CentreSprite, out.x, out.y, angle, 255);
+			DrawRotatingRadarSprite(&CentreSprite, out.x, out.y, angle, 255); // отрисовка на круглом радаре в игре
 
 			CVector2D vec2d;
 			vec2d.x = vec2DRadarOrigin.x;
@@ -720,7 +732,230 @@ void CRadar::DrawBlips()
 	}
 }
 
-void CRadar::DrawMap()
+
+
+// re3
+/*void
+CRadar::DrawBlips()
+{
+	if((!TheCamera.m_WideScreenOn && CHud::m_Wants_To_Draw_Hud)
+	   || FrontEndMenuManager.m_bMenuMapActive
+	) {
+		RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, (void *)FALSE);
+		RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void *)FALSE);
+		RwRenderStateSet(rwRENDERSTATEVERTEXALPHAENABLE, (void *)TRUE);
+		RwRenderStateSet(rwRENDERSTATESRCBLEND, (void *)rwBLENDSRCALPHA);
+		RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void *)rwBLENDINVSRCALPHA);
+		RwRenderStateSet(rwRENDERSTATEFOGENABLE, (void *)FALSE);
+
+		CVector2D out;
+		CVector2D in = CVector2D(0.0f, 0.0f);
+		TransformRadarPointToScreenSpace(out, in);
+
+#ifdef MENU_MAP
+		if(!CMenuManager::bMenuMapActive) {
+#endif
+			float angle;
+			if(TheCamera.Cams[TheCamera.ActiveCam].Mode == CCam::MODE_TOPDOWN) angle = PI + FindPlayerHeading();
+#ifdef FIX_BUGS
+			else if(TheCamera.GetLookDirection() != LOOKING_FORWARD)
+				angle = FindPlayerHeading() - (PI + (TheCamera.Cams[TheCamera.ActiveCam].CamTargetEntity->GetPosition() -
+				                                     TheCamera.Cams[TheCamera.ActiveCam].SourceBeforeLookBehind)
+				                                        .Heading());
+#endif
+			else
+				angle = FindPlayerHeading() - (PI + TheCamera.GetForward().Heading());
+
+			DrawRotatingRadarSprite(&CentreSprite, out.x, out.y, angle, 255);
+
+			CVector2D vec2d;
+			vec2d.x = vec2DRadarOrigin.x;
+			vec2d.y = M_SQRT2 * m_radarRange + vec2DRadarOrigin.y;
+			TransformRealWorldPointToRadarSpace(in, vec2d);
+			LimitRadarPoint(in);
+			TransformRadarPointToScreenSpace(out, in);
+			DrawRadarSprite(RADAR_SPRITE_NORTH, out.x, out.y, 255);
+#ifdef MENU_MAP
+		}
+#endif
+
+		CEntity *blipEntity = nil;
+		for(int blipId = 0; blipId < NUMRADARBLIPS; blipId++) {
+			// A little hack to reuse cleared blips in menu map. hehe
+			if(!FrontEndMenuManager.m_bMenuMapActive || ms_RadarTrace[blipId].m_eBlipType == BLIP_CAR || ms_RadarTrace[blipId].m_eBlipType == BLIP_CHAR ||
+			   ms_RadarTrace[blipId].m_eBlipType == BLIP_OBJECT)
+				if(!ms_RadarTrace[blipId].m_bInUse) continue;
+
+			switch(ms_RadarTrace[blipId].m_eBlipType) {
+			case BLIP_CAR:
+			case BLIP_CHAR:
+			case BLIP_OBJECT:
+				if(ms_RadarTrace[blipId].m_eRadarSprite == RADAR_SPRITE_BOMB || ms_RadarTrace[blipId].m_eRadarSprite == RADAR_SPRITE_SAVE ||
+				   ms_RadarTrace[blipId].m_eRadarSprite == RADAR_SPRITE_SPRAY || ms_RadarTrace[blipId].m_eRadarSprite == RADAR_SPRITE_GUN) {
+
+					switch(ms_RadarTrace[blipId].m_eBlipType) {
+					case BLIP_CAR: blipEntity = CPools::GetVehiclePool()->GetAt(ms_RadarTrace[blipId].m_nEntityHandle); break;
+					case BLIP_CHAR:
+						blipEntity = CPools::GetPedPool()->GetAt(ms_RadarTrace[blipId].m_nEntityHandle);
+						if(blipEntity != nil) {
+							if(((CPed *)blipEntity)->InVehicle()) blipEntity = ((CPed *)blipEntity)->m_pMyVehicle;
+						}
+						break;
+					case BLIP_OBJECT: blipEntity = CPools::GetObjectPool()->GetAt(ms_RadarTrace[blipId].m_nEntityHandle); break;
+					default: break;
+					}
+					if(blipEntity) {
+						uint32 color = GetRadarTraceColour(ms_RadarTrace[blipId].m_nColor, ms_RadarTrace[blipId].m_bDim);
+						if(ms_RadarTrace[blipId].m_eBlipDisplay == BLIP_DISPLAY_BOTH ||
+						   ms_RadarTrace[blipId].m_eBlipDisplay == BLIP_DISPLAY_MARKER_ONLY) {
+							if(CTheScripts::IsDebugOn()) {
+								ShowRadarMarker(blipEntity->GetPosition(), color, ms_RadarTrace[blipId].m_Radius);
+								ms_RadarTrace[blipId].m_Radius = ms_RadarTrace[blipId].m_Radius - 0.1f;
+								if(ms_RadarTrace[blipId].m_Radius < 1.0f) ms_RadarTrace[blipId].m_Radius = 5.0f;
+							}
+						}
+						if(ms_RadarTrace[blipId].m_eBlipDisplay == BLIP_DISPLAY_BOTH ||
+						   ms_RadarTrace[blipId].m_eBlipDisplay == BLIP_DISPLAY_BLIP_ONLY) {
+							TransformRealWorldPointToRadarSpace(in, blipEntity->GetPosition());
+							float dist = LimitRadarPoint(in);
+							TransformRadarPointToScreenSpace(out, in);
+							if(ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_NONE) {
+								DrawRadarSprite(ms_RadarTrace[blipId].m_eRadarSprite, out.x, out.y, CalculateBlipAlpha(dist));
+							} else {
+								ShowRadarTrace(out.x, out.y, ms_RadarTrace[blipId].m_wScale, (uint8)(color >> 24),
+								               (uint8)(color >> 16), (uint8)(color >> 8), 255);
+							}
+						}
+					}
+				}
+				break;
+			case BLIP_COORD:
+			case BLIP_CONTACT_POINT:
+				if((ms_RadarTrace[blipId].m_eRadarSprite == RADAR_SPRITE_BOMB || ms_RadarTrace[blipId].m_eRadarSprite == RADAR_SPRITE_SAVE ||
+				    ms_RadarTrace[blipId].m_eRadarSprite == RADAR_SPRITE_SPRAY || ms_RadarTrace[blipId].m_eRadarSprite == RADAR_SPRITE_GUN) &&
+				   (ms_RadarTrace[blipId].m_eBlipType != BLIP_CONTACT_POINT || !CTheScripts::IsPlayerOnAMission())) {
+
+					uint32 color = GetRadarTraceColour(ms_RadarTrace[blipId].m_nColor, ms_RadarTrace[blipId].m_bDim);
+					if(ms_RadarTrace[blipId].m_eBlipDisplay == BLIP_DISPLAY_BOTH ||
+					   ms_RadarTrace[blipId].m_eBlipDisplay == BLIP_DISPLAY_MARKER_ONLY) {
+						if(CTheScripts::IsDebugOn()) {
+							ShowRadarMarker(ms_RadarTrace[blipId].m_vecPos, color, ms_RadarTrace[blipId].m_Radius);
+							ms_RadarTrace[blipId].m_Radius = ms_RadarTrace[blipId].m_Radius - 0.1f;
+							if(ms_RadarTrace[blipId].m_Radius < 1.0f) ms_RadarTrace[blipId].m_Radius = 5.0f;
+						}
+					}
+					if(ms_RadarTrace[blipId].m_eBlipDisplay == BLIP_DISPLAY_BOTH ||
+					   ms_RadarTrace[blipId].m_eBlipDisplay == BLIP_DISPLAY_BLIP_ONLY) {
+						TransformRealWorldPointToRadarSpace(in, ms_RadarTrace[blipId].m_vec2DPos);
+						float dist = LimitRadarPoint(in);
+						TransformRadarPointToScreenSpace(out, in);
+						if(ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_NONE) {
+							DrawRadarSprite(ms_RadarTrace[blipId].m_eRadarSprite, out.x, out.y, CalculateBlipAlpha(dist));
+						} else {
+							ShowRadarTrace(out.x, out.y, ms_RadarTrace[blipId].m_wScale, (uint8)(color >> 24), (uint8)(color >> 16),
+							               (uint8)(color >> 8), 255);
+						}
+					}
+				}
+				break;
+			default: break;
+			}
+		}
+		for(int blipId = 0; blipId < NUMRADARBLIPS; blipId++) {
+			if(!ms_RadarTrace[blipId].m_bInUse) continue;
+
+			switch(ms_RadarTrace[blipId].m_eBlipType) {
+			case BLIP_CAR:
+			case BLIP_CHAR:
+			case BLIP_OBJECT:
+				if(ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_BOMB && ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_SAVE &&
+				   ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_SPRAY && ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_GUN) {
+
+					switch(ms_RadarTrace[blipId].m_eBlipType) {
+					case BLIP_CAR: blipEntity = CPools::GetVehiclePool()->GetAt(ms_RadarTrace[blipId].m_nEntityHandle); break;
+					case BLIP_CHAR:
+						blipEntity = CPools::GetPedPool()->GetAt(ms_RadarTrace[blipId].m_nEntityHandle);
+						if(blipEntity != nil) {
+							if(((CPed *)blipEntity)->InVehicle()) blipEntity = ((CPed *)blipEntity)->m_pMyVehicle;
+						}
+						break;
+					case BLIP_OBJECT: blipEntity = CPools::GetObjectPool()->GetAt(ms_RadarTrace[blipId].m_nEntityHandle); break;
+					default: break;
+					}
+
+					if(blipEntity) {
+						uint32 color = GetRadarTraceColour(ms_RadarTrace[blipId].m_nColor, ms_RadarTrace[blipId].m_bDim);
+						if(ms_RadarTrace[blipId].m_eBlipDisplay == BLIP_DISPLAY_BOTH ||
+						   ms_RadarTrace[blipId].m_eBlipDisplay == BLIP_DISPLAY_MARKER_ONLY) {
+							if(CTheScripts::IsDebugOn()) {
+								ShowRadarMarker(blipEntity->GetPosition(), color, ms_RadarTrace[blipId].m_Radius);
+								ms_RadarTrace[blipId].m_Radius = ms_RadarTrace[blipId].m_Radius - 0.1f;
+								if(ms_RadarTrace[blipId].m_Radius < 1.0f) ms_RadarTrace[blipId].m_Radius = 5.0f;
+							}
+						}
+						if(ms_RadarTrace[blipId].m_eBlipDisplay == BLIP_DISPLAY_BOTH ||
+						   ms_RadarTrace[blipId].m_eBlipDisplay == BLIP_DISPLAY_BLIP_ONLY) {
+							TransformRealWorldPointToRadarSpace(in, blipEntity->GetPosition());
+							float dist = LimitRadarPoint(in);
+							TransformRadarPointToScreenSpace(out, in);
+							if(ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_NONE)
+								DrawRadarSprite(ms_RadarTrace[blipId].m_eRadarSprite, out.x, out.y, CalculateBlipAlpha(dist));
+							else
+								ShowRadarTrace(out.x, out.y, ms_RadarTrace[blipId].m_wScale, (uint8)(color >> 24),
+								               (uint8)(color >> 16), (uint8)(color >> 8), 255);
+						}
+					}
+				}
+				break;
+			default: break;
+			}
+		}
+		for(int blipId = 0; blipId < NUMRADARBLIPS; blipId++) {
+			if(!ms_RadarTrace[blipId].m_bInUse) continue;
+
+			switch(ms_RadarTrace[blipId].m_eBlipType) {
+			case BLIP_COORD:
+			case BLIP_CONTACT_POINT:
+				if(ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_BOMB && ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_SAVE &&
+				   ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_SPRAY && ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_GUN &&
+				   (ms_RadarTrace[blipId].m_eBlipType != BLIP_CONTACT_POINT || !CTheScripts::IsPlayerOnAMission())) {
+
+					uint32 color = GetRadarTraceColour(ms_RadarTrace[blipId].m_nColor, ms_RadarTrace[blipId].m_bDim);
+					if(ms_RadarTrace[blipId].m_eBlipDisplay == BLIP_DISPLAY_BOTH ||
+					   ms_RadarTrace[blipId].m_eBlipDisplay == BLIP_DISPLAY_MARKER_ONLY) {
+						if(CTheScripts::IsDebugOn()) {
+							ShowRadarMarker(ms_RadarTrace[blipId].m_vecPos, color, ms_RadarTrace[blipId].m_Radius);
+							ms_RadarTrace[blipId].m_Radius = ms_RadarTrace[blipId].m_Radius - 0.1f;
+							if(ms_RadarTrace[blipId].m_Radius < 1.0f) ms_RadarTrace[blipId].m_Radius = 5.0f;
+						}
+					}
+					if(ms_RadarTrace[blipId].m_eBlipDisplay == BLIP_DISPLAY_BOTH ||
+					   ms_RadarTrace[blipId].m_eBlipDisplay == BLIP_DISPLAY_BLIP_ONLY) {
+						TransformRealWorldPointToRadarSpace(in, ms_RadarTrace[blipId].m_vec2DPos);
+						float dist = LimitRadarPoint(in);
+						TransformRadarPointToScreenSpace(out, in);
+						if(ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_NONE)
+							DrawRadarSprite(ms_RadarTrace[blipId].m_eRadarSprite, out.x, out.y, CalculateBlipAlpha(dist));
+						else
+							ShowRadarTrace(out.x, out.y, ms_RadarTrace[blipId].m_wScale, (uint8)(color >> 24), (uint8)(color >> 16),
+							               (uint8)(color >> 8), 255);
+					}
+				}
+				break;
+			default: break;
+			}
+		}
+		if(FrontEndMenuManager.m_bMenuMapActive) {
+			CVector2D in, out;
+			TransformRealWorldPointToRadarSpace(in, FindPlayerCentreOfWorld_NoSniperShift());
+			LimitRadarPoint(in);
+			TransformRadarPointToScreenSpace(out, in);
+			DrawYouAreHereSprite(out.x, out.y);
+		}
+	}
+}*/
+
+void CRadar::DrawMap() // круглый радар в игре
 {
 	if (!TheCamera.m_WideScreenOn && CHud::m_Wants_To_Draw_Hud) {
 		CalculateCachedSinCos();
@@ -874,6 +1109,9 @@ void CRadar::DrawRadarSection(int32 x, int32 y)
 
 void CRadar::DrawRadarSprite(uint16 sprite, float x, float y, uint8 alpha)
 {
+#ifdef MAP_ENHANCEMENTS
+	if(sprite == RADAR_SPRITE_WAYPOINT) alpha = 255;
+#endif
 	RadarSprites[sprite]->Draw(CRect(x - SCREEN_SCALE_X(8.0f), y - SCREEN_SCALE_Y(8.0f), x + SCREEN_SCALE_X(8.0f), y + SCREEN_SCALE_Y(8.0f)), CRGBA(255, 255, 255, alpha));
 
 	if (FrontEndMenuManager.m_bMenuMapActive) {
@@ -991,6 +1229,9 @@ const char* gRadarTexNames[] = {
 void
 CRadar::Initialise()
 {
+#ifdef MAP_ENHANCEMENTS
+	TargetMarkerId = -1;
+#endif
 	for (int i = 0; i < NUMRADARBLIPS; i++) {
 		ms_RadarTrace[i].m_BlipIndex = 1;
 		SetRadarMarkerState(i, false);
@@ -1170,7 +1411,43 @@ CRadar::LoadTextures()
 	MapHereSprite5.SetTexture("radar_arrow_05");
 	MapHereSprite6.SetTexture("radar_arrow_06");
 	MapHereSprite7.SetTexture("radar_arrow_07");
-	MapWayPoint.SetTexture("radar_player_target");
+	//MapWayPoint.SetTexture("radar_player_target"); // lcs
+#ifdef MAP_ENHANCEMENTS
+	WaypointSprite.SetTexture("radar_waypoint");
+	if(!WaypointSprite.m_pTexture) {
+		// create the texture if it's missing in TXD
+#define WAYPOINT_R (255)
+#define WAYPOINT_G (72)
+#define WAYPOINT_B (77)
+
+		RwRaster *raster = RwRasterCreate(16, 16, 0, rwRASTERTYPETEXTURE | rwRASTERFORMAT8888);
+
+		RwUInt32 *pixels = (RwUInt32 *)RwRasterLock(raster, 0, rwRASTERLOCKWRITE);
+		for(int x = 0; x < 16; x++)
+			for(int y = 0; y < 16; y++) {
+				int x2 = x < 8 ? x : 7 - (x & 7);
+				int y2 = y < 8 ? y : 7 - (y & 7);
+				if((y2 >= 4 && x2 >= 4)    // square in the center is transparent
+				   || (x2 < 2 && y2 == 0)  // two pixels on each side of first/last line are transparent
+				   || (x2 < 1 && y2 == 1)) // one pixel on each side of second to first/last line is transparent
+					pixels[x + y * 16] = 0;
+				else if((x2 == 2 && y2 >= 2) || (y2 == 2 && x2 >= 2)) // colored square inside
+#ifdef RW_GL3
+					pixels[x + y * 16] = WAYPOINT_R | (WAYPOINT_G << 8) | (WAYPOINT_B << 16) | (255 << 24);
+#else
+					pixels[x + y * 16] = WAYPOINT_B | (WAYPOINT_G << 8) | (WAYPOINT_R << 16) | (255 << 24);
+#endif
+				else
+					pixels[x + y * 16] = 0xFF000000; // black
+			}
+		RwRasterUnlock(raster);
+		WaypointSprite.m_pTexture = RwTextureCreate(raster);
+		RwTextureSetFilterMode(WaypointSprite.m_pTexture, rwFILTERLINEAR);
+#undef WAYPOINT_R
+#undef WAYPOINT_G
+#undef WAYPOINT_B
+	}
+#endif
 	CTxdStore::PopCurrentTxd();
 }
 
@@ -1389,7 +1666,10 @@ void CRadar::Shutdown()
 	MapHereSprite5.Delete();
 	MapHereSprite6.Delete();
 	MapHereSprite7.Delete();
-	MapWayPoint.Delete();
+	//MapWayPoint.Delete();
+#ifdef MAP_ENHANCEMENTS
+	WaypointSprite.Delete();
+#endif
 	/*RadioWildstyleSprite.Delete();
 	RadioFlashSprite.Delete();
 	RadioKChatSprite.Delete();
@@ -1509,6 +1789,7 @@ CRadar::InitFrontEndMap()
 	ArrowBlipColour2 = CRGBA(0, 0, 0, 0);
 }
 
+
 void
 CRadar::DrawYouAreHereSprite(float x, float y)
 {
@@ -1554,6 +1835,7 @@ CRadar::DrawYouAreHereSprite(float x, float y)
 	MapLegendList[MapLegendCounter++] = RADAR_SPRITE_MAP_HERE;
 }
 
+
 #ifdef MAP_ENHANCEMENTS
 void
 CRadar::ToggleTargetMarker(float x, float y)
@@ -1580,7 +1862,8 @@ CRadar::ToggleTargetMarker(float x, float y)
 		ms_RadarTrace[nextBlip].m_nEntityHandle = 0;
 		ms_RadarTrace[nextBlip].m_wScale = 5;
 		ms_RadarTrace[nextBlip].m_eBlipDisplay = BLIP_DISPLAY_BLIP_ONLY;
-		ms_RadarTrace[nextBlip].m_eRadarSprite = RADAR_SPRITE_NONE;
+		//ms_RadarTrace[nextBlip].m_eRadarSprite = RADAR_SPRITE_NONE; // lcs
+		ms_RadarTrace[nextBlip].m_eRadarSprite = RADAR_SPRITE_WAYPOINT;
 		TargetMarkerId = CRadar::GetNewUniqueBlipIndex(nextBlip);
 	} else {
 		ClearBlip(TargetMarkerId);
@@ -1658,7 +1941,7 @@ CRadar::DrawEntityBlip(int32 blipId)
 }
 
 void
-CRadar::DrawCoordBlip(int32 blipId)
+CRadar::DrawCoordBlip(int32 blipId) // map
 {
 	CVector2D out;
 	CVector2D in;
@@ -1758,10 +2041,10 @@ CRadar::DrawLegend(int32 x, int32 y, int32 sprite)
 			text = TheText.Get("LG_35");
 		break;
 		case RADAR_SPRITE_MAP_HERE:
-			text = TheText.Get("LG_01");
+			text = TheText.Get("LG_02");
 		break;
 		case RADAR_SPRITE_AVERY:
-			text = TheText.Get("LG_02");
+			text = TheText.Get("LG_TODO");
 		break;
 		case RADAR_SPRITE_BIKER:
 			text = TheText.Get("LG_03");
@@ -1868,8 +2151,17 @@ CRadar::DrawLegend(int32 x, int32 y, int32 sprite)
 		case RADAR_SPRITE_RADIO_WAVE:
 			text = TheText.Get("LG_34");
 		break;*/
+#ifdef MAP_ENHANCEMENTS
+        case RADAR_SPRITE_WAYPOINT:
+			//text = TheText.Get("LG_38"); // 8ball
+			text = TheText.Get("LG_50"); // destination
+			//text = TheText.Get("LG_34"); // tmp hack wawe 103 radio station
+		break;
+#endif
 		default:
-			text = TheText.Get("LG_34"); // tmp hack
+			//text = TheText.Get("LG_34"); // tmp hack // lcs no waypoint error. other label
+			text = TheText.Get("TEXT"); // tmp hack missing text mazahaka
+		    //text = nil;
 		break;
 	}
 	CFont::PrintString(SCREEN_SCALE_X(20.f) + x, SCREEN_SCALE_Y(3.0f) + y, text);

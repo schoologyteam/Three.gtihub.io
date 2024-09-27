@@ -1,5 +1,6 @@
 #pragma once
 
+#ifndef MAZAHAKA_MAPZONE_VC
 enum eLevelName {
 	LEVEL_IGNORE = -1, // beware, this is only used in CPhysical's m_nZoneLevel
 	LEVEL_GENERIC = 0,
@@ -10,6 +11,16 @@ enum eLevelName {
 
 	NUM_LEVELS
 };
+#else
+enum eLevelName {
+	LEVEL_IGNORE = -1, // beware, this is only used in CPhysical's m_nZoneLevel
+	LEVEL_GENERIC = 0,
+	LEVEL_BEACH,
+	LEVEL_MAINLAND,
+
+	NUM_LEVELS
+};
+#endif
 
 enum eAreaName {
 	AREA_MAIN_MAP,

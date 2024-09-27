@@ -7,8 +7,8 @@
 
 /* Sectors span from -2000 to 2000 in x and y.
  * With 100x100 sectors, each is 40x40 units. */
-
-#define SECTOR_SIZE_X (40.0f)
+// lcs
+/*#define SECTOR_SIZE_X (40.0f)
 #define SECTOR_SIZE_Y (40.0f)
 
 #define NUMSECTORS_X (100)
@@ -18,6 +18,44 @@
 #define WORLD_SIZE_Y (NUMSECTORS_Y * SECTOR_SIZE_Y)
 
 #define WORLD_MIN_X (-2000.0f)
+#define WORLD_MIN_Y (-2000.0f)
+
+#define WORLD_MAX_X (WORLD_MIN_X + WORLD_SIZE_X)
+#define WORLD_MAX_Y (WORLD_MIN_Y + WORLD_SIZE_Y)
+
+#define MAP_Z_LOW_LIMIT -100.0f*/
+
+// revc
+//#define SECTOR_SIZE_X (50.0f)
+//#define SECTOR_SIZE_Y (50.0f)
+//
+//#define NUMSECTORS_X (80)
+//#define NUMSECTORS_Y (80)
+//
+//#define WORLD_SIZE_X (NUMSECTORS_X * SECTOR_SIZE_X)
+//#define WORLD_SIZE_Y (NUMSECTORS_Y * SECTOR_SIZE_Y)
+//
+//#define WORLD_MIN_X (-2400.0f)
+//#define WORLD_MIN_Y (-2000.0f)
+//
+//#define WORLD_MAX_X (WORLD_MIN_X + WORLD_SIZE_X)
+//#define WORLD_MAX_Y (WORLD_MIN_Y + WORLD_SIZE_Y)
+//
+//#define MAP_Z_LOW_LIMIT -100.0f
+
+
+//__int64 __fastcall CWorld::ProcessLineOfSight 0x1908C0
+// custom reVCS
+#define SECTOR_SIZE_X (50.0f)
+#define SECTOR_SIZE_Y (50.0f)
+
+#define NUMSECTORS_X (80)
+#define NUMSECTORS_Y (80)
+
+#define WORLD_SIZE_X (NUMSECTORS_X * SECTOR_SIZE_X)
+#define WORLD_SIZE_Y (NUMSECTORS_Y * SECTOR_SIZE_Y)
+
+#define WORLD_MIN_X (-2400.0f)
 #define WORLD_MIN_Y (-2000.0f)
 
 #define WORLD_MAX_X (WORLD_MIN_X + WORLD_SIZE_X)

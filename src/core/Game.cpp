@@ -89,12 +89,16 @@
 #include "Ropes.h"
 #include "WindModifiers.h"
 #include "WaterCreatures.h"
+#include "FerrisWheel.h"
 #include "postfx.h"
 #include "custompipes.h"
 #include "screendroplets.h"
 #include "VarConsole.h"
 #ifdef USE_TEXTURE_POOL
 #include "TexturePools.h"
+#endif
+#ifdef MAZAHAKA_PLUGIN_CODE
+#include "../plugin/plugin.h"
 #endif
 
 eLevelName CGame::currLevel;
@@ -321,6 +325,10 @@ void CGame::ShutdownRenderWare(void)
 
 bool CGame::InitialiseOnceAfterRW(void)
 {
+#ifdef MAZAHAKA_PLUGIN_CODE
+	PLG_InitialiseOnceAfterRW_Before(); // PLG PLUGIN MAZAHAKA
+#endif
+
 	TheText.Load();
 	CTimer::Initialise();
 	gpTempColModels->Initialise();
@@ -353,6 +361,10 @@ bool CGame::InitialiseOnceAfterRW(void)
 	DMAudio.SetEffectsFadeVol(127);
 	DMAudio.SetMusicFadeVol(127);
 #endif
+
+#ifdef MAZAHAKA_PLUGIN_CODE
+	PLG_InitialiseOnceAfterRW_After(); // PLG PLUGIN MAZAHAKA
+#endif
 	return true;
 }
 
@@ -366,6 +378,10 @@ CGame::FinalShutdown(void)
 
 bool CGame::Initialise(const char* datFile)
 {
+#ifdef MAZAHAKA_PLUGIN_CODE
+	PLG_OnInit_Before(); // PLG PLUGIN MAZAHAKA
+#endif
+
 	ResetLoadingScreenBar();
 	strcpy(aDatFile, datFile);
 
@@ -388,7 +404,11 @@ bool CGame::Initialise(const char* datFile)
 #ifdef USE_TEXTURE_POOL
 	_TexturePoolsUnknown(false);
 #endif
+#ifndef MAZAHAKA_MAPZONE_VC
 	currLevel = LEVEL_INDUSTRIAL;
+#else
+	currLevel = LEVEL_BEACH;
+#endif
 	currArea = AREA_MAIN_MAP;
 
 	PUSH_MEMID(MEMID_TEXTURES);
@@ -457,9 +477,16 @@ bool CGame::Initialise(const char* datFile)
 	CPickups::Init();
 	CTheCarGenerators::Init();
 
-	CdStreamAddImage("MODELS\\GTA3.IMG");
+	//CdStreamAddImage("MODELS\\GTAVCS.IMG");
+	//CdStreamAddImage("MODELS\\_\\GTA3.IMG");
+	CdStreamAddImage("MODELS\\GTA3.IMG"); // lower is priority [dummy tmp] без него игра не стартует lol
+	//CdStreamAddImage("MODELS\\LCS_PEDS.IMG");
+	//CdStreamAddImage("MODELS\\GTAVCS.IMG");//cols
+	//CdStreamAddImage("MODELS\\GTAVC.IMG");
+	//CdStreamAddImage("MODELS\\_\\LCS_OTHER.IMG"); // lower is priority, other main cdimage map+obj
 
-//	CFileLoader::LoadLevel("DATA\\DEFAULT.DAT");
+
+	//CFileLoader::LoadLevel("DATA\\DEFAULT.DAT");
 	CFileLoader::LoadLevel(datFile);
 
 	LoadingScreen("Loading the Game", "Add Particles", nil);
@@ -483,8 +510,10 @@ bool CGame::Initialise(const char* datFile)
 	CDraw::ms_fLODDistance = 500.0f;
 
 	LoadingScreen("Loading the Game", "Setup streaming", nil);
+//#ifndef MAZAHAKA_DISABLE_CARPEDGEN
 	CStreaming::LoadInitialVehicles();
 	CStreaming::LoadInitialPeds();
+//#endif
 	CStreaming::RequestBigBuildings(LEVEL_GENERIC);
 	CStreaming::LoadAllRequestedModels(false);
 	CStreaming::RemoveIslandsNotUsed(currLevel);
@@ -492,10 +521,14 @@ bool CGame::Initialise(const char* datFile)
 
 	LoadingScreen("Loading the Game", "Load animations", GetRandomSplashScreen());
 	PUSH_MEMID(MEMID_ANIMATION);
+//#ifndef MAZAHAKA_DISABLE_CARPEDGEN // todo
 	CAnimManager::LoadAnimFiles();
+//#endif
 	POP_MEMID();
 
+//#ifndef MAZAHAKA_DISABLE_CARPEDGEN
 	CStreaming::LoadInitialWeapons();
+//#endif
 	CStreaming::LoadAllRequestedModels(0);
 	CPed::Initialise();
 	CRouteNode::Initialise();
@@ -548,9 +581,9 @@ bool CGame::Initialise(const char* datFile)
 	CSpecialFX::Init();
 	CRopes::Init();
 	CWaterCannons::Init();
-	CBridge::Init();
-	CGarages::Init();
-
+	CBridge::Init(); // need?
+	CGarages::Init(); // ? here?
+	CFerrisWheel::Init(); // vcs
 	LoadingScreen("Loading the Game", "Position dynamic objects", nil);
 	LoadingScreen("Loading the Game", "Initialise vehicle paths", nil);
 
@@ -590,6 +623,10 @@ bool CGame::Initialise(const char* datFile)
 
 	DMAudio.SetStartingTrackPositions(TRUE);
 	DMAudio.ChangeMusicMode(MUSICMODE_GAME);
+
+#ifdef MAZAHAKA_PLUGIN_CODE
+	PLG_OnInit_After(); // PLG PLUGIN MAZAHAKA
+#endif
 	return true;
 }
 
@@ -651,6 +688,9 @@ bool CGame::ShutDown(void)
 #ifdef USE_TEXTURE_POOL
 	_TexturePoolsFinalShutdown();
 #endif
+#ifdef MAZAHAKA_PLUGIN_CODE
+	PLG_Shutdown(); // PLG PLUGIN MAZAHAKA
+#endif
 	return true;
 }
 
@@ -677,9 +717,14 @@ bool CGame::ReInitGameObjectVariables(bool load)
 	CDraw::SetFOV(120.0f);
 	CDraw::ms_fLODDistance = 500.0f;
 	CStreaming::RequestBigBuildings(LEVEL_GENERIC);
+#ifndef MAZAHAKA_MAPZONE_VC
 	CStreaming::RemoveIslandsNotUsed(LEVEL_INDUSTRIAL);
 	CStreaming::RemoveIslandsNotUsed(LEVEL_COMMERCIAL);
 	CStreaming::RemoveIslandsNotUsed(LEVEL_SUBURBAN);
+#else
+	CStreaming::RemoveIslandsNotUsed(LEVEL_BEACH); // revc ~674
+	CStreaming::RemoveIslandsNotUsed(LEVEL_MAINLAND);
+#endif
 	CStreaming::LoadAllRequestedModels(false);
 	currArea = AREA_MAIN_MAP;
 	CPed::Initialise();
@@ -709,8 +754,8 @@ bool CGame::ReInitGameObjectVariables(bool load)
 	CHeli::InitHelis();
 	CMovingThings::Init();
 	CDarkel::Init();
-	if(!load) // erase loaded stats bug
-		CStats::Init();
+	if(!load) // if load save data already have in fields!!
+		CStats::Init(); // mazahaka
 	CPickups::Init();
 	CPacManPickups::Init();
 	if (!load)
@@ -779,6 +824,10 @@ void CGame::ShutDownForRestart(void)
 
 void CGame::InitialiseWhenRestarting(void)
 {
+#ifdef MAZAHAKA_PLUGIN_CODE
+	PLG_OnRestart_Before(); // PLG PLUGIN MAZAHAKA
+#endif
+
 	CRect rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	CRGBA color(255, 255, 255, 255);
 	
@@ -815,8 +864,10 @@ void CGame::InitialiseWhenRestarting(void)
 	
 	if ( FrontEndMenuManager.m_bWantToLoad == true )
 	{
+		// FrontEndMenuManager.m_bWantToLoad = false; // removed by lcs mazahaka
 		InitRadioStationPositionList();
-		if ( bLoadSuccessful == true )
+		// if(GenericLoad() == true) // removed by lcs mazahaka
+		if(bLoadSuccessful == true) // orig без него реинит забывает переменные save. init, load save, init => result lost save variables mazahaka
 		{
 			DMAudio.ResetTimers(CTimer::GetTimeInMilliseconds());
 			CFerry::InitFerrys();
@@ -835,7 +886,7 @@ void CGame::InitialiseWhenRestarting(void)
 			ShutDownForRestart();
 			CTimer::Stop();
 			CTimer::Initialise();
-			//FrontEndMenuManager.m_bWantToLoad = false;
+			// FrontEndMenuManager.m_bWantToLoad = false; // remove by lcs
 			ReInitGameObjectVariables(false);
 			currLevel = LEVEL_GENERIC;
 			CCollision::SortOutCollisionAfterLoad();
@@ -845,17 +896,26 @@ void CGame::InitialiseWhenRestarting(void)
 #endif
 	}
 	
-	FrontEndMenuManager.m_bWantToLoad = true;
+	FrontEndMenuManager.m_bWantToLoad = true; // new by lcs
 	CTimer::Update();
 	
 	DMAudio.ChangeMusicMode(MUSICMODE_GAME);
 #ifdef USE_TEXTURE_POOL
 	_TexturePoolsUnknown(true);
 #endif
+
+#ifdef MAZAHAKA_PLUGIN_CODE
+	PLG_OnRestart_After(); // PLG PLUGIN MAZAHAKA
+#endif
 }
 
 void CGame::Process(void) 
 {
+#ifdef MAZAHAKA_PLUGIN_CODE
+	PLG_OnDraw_Before(); // PLG PLUGIN MAZAHAKA
+#endif
+
+	//--------------new block lcs без него крашит
 	if (FrontEndMenuManager.m_bWantToLoad) {
 		CTheScripts::StartTestScript();
 		CTheScripts::Process();
@@ -870,6 +930,10 @@ void CGame::Process(void)
 		CStreaming::LoadScene(TheCamera.GetPosition());
 		FrontEndMenuManager.m_bWantToLoad = false;
 	}
+	//--------------!new block
+
+
+
 	CPad::UpdatePads();
 #ifdef USE_CUSTOM_ALLOCATOR
 	ProcessTidyUpMemory();
@@ -933,6 +997,7 @@ void CGame::Process(void)
 		CEventList::Update();
 		CParticle::Update();
 		gFireManager.Update();
+#ifndef MAZAHAKA_DISABLE_CARPEDGEN
 		//if (processTime >= 2) {
 		//	CPopulation::Update(false);
 		//} else {
@@ -940,6 +1005,7 @@ void CGame::Process(void)
 			CPopulation::Update(true);
 		//	processTime = CTimer::GetCurrentTimeInCycles() / CTimer::GetCyclesPerMillisecond() - startTime;
 		//}
+#endif
 		CWeapon::UpdateWeapons();
 		if (!CCutsceneMgr::IsRunning())
 			CTheCarGenerators::Process();
@@ -968,6 +1034,7 @@ void CGame::Process(void)
 		CCullZones::Update();
 		if (!CReplay::IsPlayingBack())
 			CGameLogic::Update();
+		CFerrisWheel::Update(); // vcs
 		CBridge::Update();
 		CCoronas::DoSunAndMoon();
 		CCoronas::Update();
@@ -976,6 +1043,7 @@ void CGame::Process(void)
 		gPhoneInfo.Update();
 		if (!CReplay::IsPlayingBack())
 		{
+#ifndef MAZAHAKA_DISABLE_CARPEDGEN
 			PUSH_MEMID(MEMID_CARS);
 			//if (processTime < 2)
 				CCarCtrl::GenerateRandomCars();
@@ -983,10 +1051,15 @@ void CGame::Process(void)
 			CCarCtrl::RemoveDistantCars();
 			CCarCtrl::RemoveCarsIfThePoolGetsFull();
 			POP_MEMID();
+#endif
 		}
 	}
 #ifdef GTA_PS2
 	CMemCheck::DoTest();
+#endif
+
+#ifdef MAZAHAKA_PLUGIN_CODE
+	PLG_OnDraw_After(); // PLG PLUGIN MAZAHAKA
 #endif
 }
 

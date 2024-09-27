@@ -174,6 +174,7 @@ struct ColHeader
 	uint32 size;
 };
 
+__declspec(noinline) 
 void
 CFileLoader::LoadCollisionFile(const char *filename, uint8 colSlot)
 {
@@ -190,6 +191,10 @@ CFileLoader::LoadCollisionFile(const char *filename, uint8 colSlot)
 
 	while(CFileMgr::Read(fd, (char*)&header, sizeof(header))){
 		assert(header.ident == 'LLOC');
+		//assert((header.ident == 'LLOC') || (header.ident == 'COLL'));
+		//if(!((header.ident == 'LLOC') || (header.ident == 'COLL'))) {
+		//	debug("");
+		//}	
 		CFileMgr::Read(fd, (char*)work_buff, header.size);
 		memcpy(modelname, work_buff, 24);
 
@@ -1284,12 +1289,19 @@ CFileLoader::LoadObjectInstance(const char *line)
 	RwMatrixRotate(xform, &axis, angle, rwCOMBINEREPLACE);
 	RwMatrixTranslate(xform, &trans, rwCOMBINEPOSTCONCAT);
 
+	int pathobj = 0;
 	if(mi->GetObjectID() == -1){
 		if(ThePaths.IsPathObject(id)){
 			entity = new CTreadable;
 			ThePaths.RegisterMapObject((CTreadable*)entity);
+			pathobj = 1;
 		}else
 			entity = new CBuilding;
+		assert(entity);
+		if(!entity) {
+			debug("!ent %d\n", pathobj);
+		}
+
 		entity->SetModelIndexNoCreate(id);
 		entity->GetMatrix() = CMatrix(xform);
 		entity->m_level = CTheZones::GetLevelFromPosition(&entity->GetPosition());

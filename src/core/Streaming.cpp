@@ -77,6 +77,7 @@ size_t CStreaming::ms_memoryAvailable;
 
 int32 desiredNumVehiclesLoaded = 12;
 
+#ifndef MAZAHAKA_MAPZONE_VC
 CEntity *pIslandLODindustEntity;
 CEntity *pIslandLODcomIndEntity;
 CEntity *pIslandLODcomSubEntity;
@@ -87,6 +88,12 @@ int32 islandLODcomInd;
 int32 islandLODcomSub;
 int32 islandLODsubInd;
 int32 islandLODsubCom;
+#else
+CEntity *pIslandLODmainlandEntity;
+CEntity *pIslandLODbeachEntity;
+int32 islandLODmainland;
+int32 islandLODbeach;
+#endif
 
 #ifndef MASTER
 bool gbPrintStats;
@@ -249,6 +256,7 @@ CStreaming::Init2(void)
 
 	// find island LODs
 
+#ifndef MAZAHAKA_MAPZONE_VC
 	pIslandLODindustEntity = nil;
 	pIslandLODcomIndEntity = nil;
 	pIslandLODcomSubEntity = nil;
@@ -264,6 +272,14 @@ CStreaming::Init2(void)
         CModelInfo::GetModelInfo("IslandLODcomSUB", &islandLODcomSub);
         CModelInfo::GetModelInfo("IslandLODsubIND", &islandLODsubInd);
         CModelInfo::GetModelInfo("IslandLODsubCOM", &islandLODsubCom);
+#else
+	pIslandLODmainlandEntity = nil;
+	pIslandLODbeachEntity = nil;
+	islandLODmainland = -1;
+	islandLODbeach = -1;
+	CModelInfo::GetModelInfo("IslandLODmainland", &islandLODmainland);
+	CModelInfo::GetModelInfo("IslandLODbeach", &islandLODbeach);
+#endif
 
 #ifndef MASTER
 	VarConsole.Add("Streaming Debug", &gbPrintStats, true);
@@ -770,6 +786,7 @@ CStreaming::FinishLoadingLargeFile(int8 *buf, int32 streamId)
 	return true;
 }
 
+__declspec(noinline)
 void
 CStreaming::RequestModel(int32 id, int32 flags)
 {
@@ -807,6 +824,11 @@ CStreaming::RequestModel(int32 id, int32 flags)
 		if(ms_aInfoForModel[id].m_loadState == STREAMSTATE_NOTLOADED){
 			if(id < STREAM_OFFSET_TXD){
 				mi = (CSimpleModelInfo*)CModelInfo::GetModelInfo(id);
+				assert(mi);
+				if(!mi) { 
+					debug("%d", id);
+					mi = (CSimpleModelInfo *)CModelInfo::GetModelInfo(id);
+				}
 				RequestTxd(mi->GetTxdSlot(), flags);
 				int anim = mi->GetAnimFileIndex();
 				if(anim != -1)
@@ -930,6 +952,7 @@ CStreaming::InstanceLoadedModels(const CVector &pos)
 	}
 }
 
+#ifndef MAZAHAKA_MAPZONE_VC
 void
 CStreaming::RequestIslands(eLevelName level)
 {
@@ -950,6 +973,24 @@ CStreaming::RequestIslands(eLevelName level)
 	default: break;
 	}
 }
+#else
+void
+CStreaming::RequestIslands(eLevelName level)
+{
+	ISLAND_LOADING_ISNT(HIGH)
+	switch(level){
+	case LEVEL_MAINLAND:
+		if(islandLODbeach != -1)
+			RequestModel(islandLODbeach, BIGBUILDINGFLAGS);
+		break;
+	case LEVEL_BEACH:
+		if(islandLODmainland != -1)
+			RequestModel(islandLODmainland, BIGBUILDINGFLAGS);
+		break;
+	default: break;
+	}
+}
+#endif
 
 const char *csPlayerNames[] =
 {
@@ -1003,7 +1044,8 @@ CStreaming::RequestSpecialModel(int32 modelId, const char *modelName, int32 flag
 	int i, n;
 
 	mi = CModelInfo::GetModelInfo(modelId);
-	if (CKeyGen::GetUppercaseKey(modelName) == CKeyGen::GetUppercaseKey("cstoni_a")) {
+	if (CKeyGen::GetUppercaseKey(modelName) == CKeyGen::GetUppercaseKey("cstoni_a")) // vcs csplr?
+	{
 		i = 0;
 		while (csPlayerNames[i][0] != '\0') {
 			if (CModelInfo::GetModelInfo(0)->GetNameHashKey() == CKeyGen::GetUppercaseKey(playerNames[i])) {
@@ -1151,6 +1193,7 @@ CStreaming::RemoveModel(int32 id)
 	ms_aInfoForModel[id].m_loadState = STREAMSTATE_NOTLOADED;
 }
 
+#ifndef MAZAHAKA_MAPZONE_VC
 void
 CStreaming::RemoveUnusedBuildings(eLevelName level)
 {
@@ -1158,6 +1201,16 @@ CStreaming::RemoveUnusedBuildings(eLevelName level)
 		if(level != i)
 			RemoveBuildings((eLevelName)i);
 }
+#else
+void
+CStreaming::RemoveUnusedBuildings(eLevelName level)
+{
+	if(level != LEVEL_BEACH)
+		RemoveBuildings(LEVEL_BEACH);
+	if(level != LEVEL_MAINLAND)
+		RemoveBuildings(LEVEL_MAINLAND);
+}
+#endif
 
 void
 CStreaming::RemoveBuildings(eLevelName level)
@@ -1274,6 +1327,7 @@ CStreaming::RemoveBuildingsNotInArea(int32 area)
 	}
 }
 
+#ifndef MAZAHAKA_MAPZONE_VC
 void
 CStreaming::RemoveUnusedBigBuildings(eLevelName level)
 {
@@ -1285,6 +1339,20 @@ CStreaming::RemoveUnusedBigBuildings(eLevelName level)
 	}
 	RemoveIslandsNotUsed(level);
 }
+#else
+void
+CStreaming::RemoveUnusedBigBuildings(eLevelName level)
+{
+	ISLAND_LOADING_IS(LOW)
+	{
+	if(level != LEVEL_BEACH)
+		RemoveBigBuildings(LEVEL_BEACH);
+	if(level != LEVEL_MAINLAND)
+		RemoveBigBuildings(LEVEL_MAINLAND);
+	}
+	RemoveIslandsNotUsed(level);
+}
+#endif
 
 void
 DeleteIsland(CEntity *island)
@@ -1299,6 +1367,7 @@ DeleteIsland(CEntity *island)
 	}
 }
 
+#ifndef MAZAHAKA_MAPZONE_VC
 void
 CStreaming::RemoveIslandsNotUsed(eLevelName level)
 {
@@ -1353,6 +1422,38 @@ CStreaming::RemoveIslandsNotUsed(eLevelName level)
 		break;
 	}
 }
+#else
+void
+CStreaming::RemoveIslandsNotUsed(eLevelName level)
+{
+	int i;
+	if(pIslandLODmainlandEntity == nil)
+	for(i = CPools::GetBuildingPool()->GetSize()-1; i >= 0; i--){
+		CBuilding *building = CPools::GetBuildingPool()->GetSlot(i);
+		if(building == nil)
+			continue;
+		if(building->GetModelIndex() == islandLODmainland)
+			pIslandLODmainlandEntity = building;
+		if(building->GetModelIndex() == islandLODbeach)
+			pIslandLODbeachEntity = building;
+	}
+#ifdef NO_ISLAND_LOADING
+	if(FrontEndMenuManager.m_PrefsIslandLoading == CMenuManager::ISLAND_LOADING_HIGH) {
+		DeleteIsland(pIslandLODmainlandEntity);
+		DeleteIsland(pIslandLODbeachEntity);
+	} else
+#endif
+	switch(level){
+	case LEVEL_MAINLAND:
+		DeleteIsland(pIslandLODmainlandEntity);
+		break;
+	case LEVEL_BEACH:
+		DeleteIsland(pIslandLODbeachEntity);
+
+		break;
+	}
+}
+#endif
 
 void
 CStreaming::RemoveBigBuildings(eLevelName level)
@@ -2053,7 +2154,7 @@ inline bool
 ModelNotLoaded(int32 modelId)
 {
 	CStreamingInfo *si = &CStreaming::ms_aInfoForModel[modelId];
-	return si->m_loadState != STREAMSTATE_LOADED && si->m_loadState != STREAMSTATE_READING;
+	return !si || (si->m_loadState != STREAMSTATE_LOADED && si->m_loadState != STREAMSTATE_READING); // mazahaka vcs
 }
 
 inline bool TxdNotLoaded(int32 txdId) { return ModelNotLoaded(txdId + STREAM_OFFSET_TXD); }

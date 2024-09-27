@@ -1,5 +1,39 @@
 #pragma once
 
+#define MAZAHAKA_DEBUG
+#define MAZAHAKA_FIX_BACKGROUND_APP_NO_HOLD_MOUSE // alt + tab // or on bg change activate menu
+
+//#define TRANSPARENT_MENU                          // MAZAHAKA // todo fade black
+#ifdef TRANSPARENT_MENU
+#define TRANSPARENT_MENU_HUD_RENDER // ++ MAZAHAKA
+#endif
+
+#define DISABLE_CONVERT_TXD_IMG
+#define MAZAHAKA_PLUGIN_CODE
+#define MAZAHAKA_MISC // carspawn normal,
+//#define MAZAHAKA_ANIM_STUFF // for test
+#define MAZAHAKA_STATS_COLOR_FIX
+#define MAZAHAKA_DEBUG_CUSTOM_VALS
+//#define MAZAHAKA_DEBUG_NOFILE // userfiles/SCRDBG.LOG
+#define MAZAHAKA_TRY_SFX_FIX
+#define MAZAHAKA_TRY_FIX_AUTOCHANGE_WEAPON_SLOT_IF_ZERO_AMMO // camera bug, silent photo at last capture autofire next weapon and mission failed
+#define MAZAHAKA_8_IN_LOCAL_VARS_SCRIPTS_ASSERT_STUFF
+#define MAZAHAKA_TMP_FIX_MAIN_SCM_ERRORS_IN_CODE
+
+#define MAZAHAKA_INCREASE_CONFIG_2_IMG // для 2х img
+#define MAZAHAKA_MAPZONE_VC // todo !!Streaming re3 revc / relcs need for move relcs to revcs tmp!
+//#define MAZAHAKA_DISABLE_CARPEDGEN
+
+// disable path dir
+//#define FLIGHT_PATH
+//#define GTA_TRAIN
+//#define GTA_BRIDGE
+//#define GTA_FERRY // mazahaka
+
+//#define MAZAHAKA_HUD_ZERO_MONEY_FIX // ? todo
+
+
+
 // disables (most) stuff that wasn't in original gta-vc.exe
 #ifdef __MWERKS__
 #define VANILLA_DEFINES
@@ -9,21 +43,39 @@ enum Config {
 	NUMPLAYERS = 1,
 
 	NUMCDIMAGES = 6, // gta3.img duplicates (not used on PC)
+#ifdef MAZAHAKA_INCREASE_CONFIG_2_IMG
+	MAX_CDIMAGES = 8*3, // additional cdimages
+#else
 	MAX_CDIMAGES = 8, // additional cdimages
+#endif
 	MAX_CDCHANNELS = 5,
 
+#ifdef MAZAHAKA_INCREASE_CONFIG_2_IMG
+	MODELINFOSIZE = 4900*7,
+	TXDSTORESIZE = 1200*3,
+	COLSTORESIZE = 15*10,
+	EXTRADIRSIZE = 256*30,
+	CUTSCENEDIRSIZE = 512*10,
+	SIMPLEMODELSIZE = 3885*3,
+#else
 	MODELINFOSIZE = 4900,
 	TXDSTORESIZE = 1200,
 	COLSTORESIZE = 15,
 	EXTRADIRSIZE = 256,
 	CUTSCENEDIRSIZE = 512,
-
 	SIMPLEMODELSIZE = 3885,
+#endif
+
+
 	TIMEMODELSIZE = 385,
 	CLUMPMODELSIZE = 10,
 	WEAPONMODELSIZE = 37,
 	PEDMODELSIZE = 130,
+#ifdef MAZAHAKA_INCREASE_CONFIG_2_IMG
+	VEHICLEMODELSIZE = 110*3,
+#else
 	VEHICLEMODELSIZE = 110,
+#endif
 	TWODFXSIZE = 1210,
 
 	MAXVEHICLESLOADED = 50, // 70 on mobile
@@ -31,16 +83,29 @@ enum Config {
 	NUMOBJECTINFO = 210,
 
 	// Pool sizes
+#ifdef MAZAHAKA_INCREASE_CONFIG_2_IMG
+	NUMPTRNODES = 50000*7,	// only 30100
+	NUMENTRYINFOS = 4000*4,
+#else
 	NUMPTRNODES = 50000,	// only 30100
 	NUMENTRYINFOS = 4000,
+#endif
 	NUMPEDS = 140,		// only 70
 	NUMVEHICLES = 110,	// only 70
+#ifdef MAZAHAKA_INCREASE_CONFIG_2_IMG
+	NUMBUILDINGS = 7000*3,	// only 6757
+#else
 	NUMBUILDINGS = 7000,	// only 6757
+#endif
 	NUMTREADABLES = 1300,
 	NUMOBJECTS = 475,
 	NUMDUMMIES = 3000,
 	NUMAUDIOSCRIPTOBJECTS = 192,
+#ifdef MAZAHAKA_INCREASE_CONFIG_2_IMG
+	NUMCOLMODELS = 4400*5,
+#else
 	NUMCOLMODELS = 4400,
+#endif
 	NUMCUTSCENEOBJECTS = 50,	// not a pool in VC
 
 	NUMANIMBLOCKS = 60,
@@ -156,9 +221,6 @@ enum Config {
 //#define GTA_PS2
 //#define GTA_XBOX
 
-#define GTA_TRAIN
-#define GTA_BRIDGE
-
 // Version defines
 #define GTAVC_PS2	400
 #define GTAVC_PC_10	410
@@ -189,7 +251,7 @@ enum Config {
 #	ifndef GTA_HANDHELD
 #		define PC_PLAYER_CONTROLS	// mouse player/cam mode
 #	endif
-//#	define GTA_REPLAY
+#	define GTA_REPLAY
 #	define GTA_SCENE_EDIT
 #	define PC_MENU
 #	define PC_WATER
@@ -288,7 +350,7 @@ enum Config {
 #endif
 
 #define FIX_BUGS		// fixes bugs that we've came across during reversing. You can undefine this only on release builds.
-//#define MORE_LANGUAGES		// Add more translations to the game
+//#define MORE_LANGUAGES		// Add more translations to the game //-------------------------------------------------------------
 #define COMPATIBLE_SAVES // this allows changing structs while keeping saves compatible, and keeps saves compatible between platforms
 //#define FIX_INCOMPATIBLE_SAVES // try to fix incompatible saves, requires COMPATIBLE_SAVES
 #define LOAD_INI_SETTINGS // as the name suggests. fundamental for CUSTOM_FRONTEND_OPTIONS
@@ -318,7 +380,11 @@ enum Config {
 #define ASPECT_RATIO_SCALE	// Not just makes everything scale with aspect ratio, also adds support for all aspect ratios
 #define PROPER_SCALING		// use original DEFAULT_SCREEN_WIDTH/DEFAULT_SCREEN_HEIGHT from PS2 instead of PC(R* changed HEIGHT here to make radar look better, but broke other hud elements aspect ratio).
 #define DEFAULT_NATIVE_RESOLUTION	// Set default video mode to your native resolution (fixes Windows 10 launch)
-#define USE_TXD_CDIMAGE		// generate and load textures from txd.img
+
+#ifndef DISABLE_CONVERT_TXD_IMG
+	#define USE_TXD_CDIMAGE // generate and load textures from txd.img
+#endif
+
 #define PS2_ALPHA_TEST		// emulate ps2 alpha test 
 #define IMPROVED_VIDEOMODE	// save and load videomode parameters instead of a magic number
 //#define DISABLE_LOADING_SCREEN // disable the loading screen which vastly improves the loading time
@@ -408,8 +474,16 @@ static_assert(false, "SUPPORT_XBOX_SCRIPT and SUPPORT_MOBILE_SCRIPT are mutually
 //#define SIMPLER_MISSIONS // apply simplifications from mobile
 //#define USE_MISSION_REPLAY_OVERRIDE_FOR_NON_MOBILE_SCRIPT
 #endif
-#define USE_ADVANCED_SCRIPT_DEBUG_OUTPUT
+#define USE_ADVANCED_SCRIPT_DEBUG_OUTPUT // mazahaka tmp disabled. error ScriptDebug 1741 localvar index < size
 #define SCRIPT_LOG_FILE_LEVEL 1 // 0 == no log, 1 == overwrite every frame, 2 == full log
+
+#if(defined MAZAHAKA_DEBUG_NOFILE && defined USE_ADVANCED_SCRIPT_DEBUG_OUTPUT)
+#undef SCRIPT_LOG_FILE_LEVEL
+#define SCRIPT_LOG_FILE_LEVEL 2
+#else
+//#undef SCRIPT_LOG_FILE_LEVEL
+//#define SCRIPT_LOG_FILE_LEVEL 0
+#endif
 
 #if SCRIPT_LOG_FILE_LEVEL == 0
 #undef USE_ADVANCED_SCRIPT_DEBUG_OUTPUT

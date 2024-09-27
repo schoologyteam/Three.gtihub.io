@@ -48,8 +48,17 @@
 #include "Population.h"
 #include "IniFile.h"
 #include "Zones.h"
+#include "Pools.h"
 
 #include "crossplatform.h"
+
+#ifdef MAZAHAKA_MISC
+	#include "../utils/Utils.h"
+#endif
+
+#ifdef MAZAHAKA_DEBUG_CUSTOM_VALS
+#include "../plugin/TimecycleDebuger.h"
+#endif
 
 #ifndef _WIN32
 #include "assert.h"
@@ -194,7 +203,7 @@ CustomFrontendOptionsPopulate(void)
 #define MINI_CASE_SENSITIVE
 #include "ini.h"
 
-mINI::INIFile ini("reLCS.ini");
+mINI::INIFile ini("reVCS.ini");
 mINI::INIStructure cfg;
 
 bool ReadIniIfExists(const char *cat, const char *key, uint32 *out)
@@ -313,6 +322,37 @@ void StoreIni(const char *cat, const char *key, char *val, int size)
 {
 	cfg[cat][key] = val;
 }
+
+
+#ifdef MISSION_SWITCHER
+		static const char* missions[] = {
+			"initial: objects", "initial: hidden packages", "initial: car generators", "initial: pickups", "initial: unique stunt jumps",
+			"initial: player", "initial: general info", "initial: lods", "initial: weapons", "Home Sweet Home", "Taxi-Driver Sub-Mission",
+			"Paramedic Sub-Mission", "Vigilante Sub-Mission", "Karmageddon", "Firefighter Sub-Mission", "Trash Dash", "RC Triad Take-Down",
+			"Thrashin' RC", "Ragin' RC", "Chasin' RC", "GO GO Faggio", "Noodleboy", "Pizzaboy", "Wong Side Of The Tracks", "Bumps and Grinds: Course 1",
+			"Bumps and Grinds: Course 2", "Bumps and Grinds: Course 3", "Bumps and Grinds: Course 4", "Bumps and Grinds: Course 5", "Bumps and Grinds: Course 6",
+			"Bumps and Grinds: Course 7", "Bumps and Grinds: Course 8", "Bumps and Grinds: Course 9", "Bumps and Grinds: Course 10", "Car Salesman", "Bike Salesman",
+			"RACE: Low-Rider Rumble", "RACE: Deimos Dash", "RACE: Wi-Cheetah Run", "RACE: Red Light Racing", "RACE: Torrington TT", "RACE: Gangsta GP",
+			"Scooter Shooter", "AWOL Angel", "9mm Mayhem", "Scrapyard Challenge", "See the Sight Before your Flight", "SlashTV", "Slacker (Vincenzo)",
+			"Dealing Revenge (Vincenzo)", "Snuff (Vincenzo)", "Smash and Grab (Vincenzo)", "Hot Wheels (Vincenzo)", "The Portland Chainsaw Masquerade (Vincenzo)",
+			"The Offer (Salvatore)", "Ho Selecta! (Salvatore)", "Frighteners (Salvatore)", "Rollercoaster Ride (Salvatore)", "Contra-Banned (Salvatore)",
+			"Sindacco Sabotage (Salvatore)", "The Trouble with Triads (Salvatore)", "Driving Mr Leone (Salvatore)", "conversation (JD)", "Bone Voyeur! (JD)",
+			"Don in 60 Seconds (JD)", "A Volatile Situation (JD)", "Blow up 'Dolls' (JD)", "Salvatore's Salvation (JD)", "The Guns of Leone (JD)",
+			"Calm before the Storm (JD)", "The Made Man (JD)", "Snappy Dresser (Ma Cipriani)", "Big Rumble in Little China (Ma Cipriani)", "Grease Sucho (Ma Cipriani)",
+			"Dead Meat (Ma Cipriani)", "No Son of Mine (Ma Cipriani)", "Shop 'til you Strop (Maria)", "Taken for a Ride (Maria)", "Booby Prize (Maria)",
+			"Biker Heat (Maria)", "Overdose of Trouble (Maria)", "Making Toni (Salvatore)", "A Walk In The Park (Salvatore)", "Caught In The Act (Salvatore)",
+			"Search And Rescue (Salvatore)", "Taking The Peace (Salvatore)", "Shoot The Messenger (Salvatore)", "Sayonara Sindaccos (Leon McAffrey)",
+			"The Whole 9 Yardies (Leon McAffrey)", "Crazy '69' (Leon McAffrey)", "Night Of The Livid Dreads (Leon McAffrey)", "Munitions Dump (Leon McAffrey)",
+			"The Morgue Party Candidate (Donald Love)", "Steering The Vote (Donald Love)", "Cam-Pain (Donald Love)", "Friggin' The Riggin' (Donald Love)",
+			"Love & Bullets (Donald Love)", "Counterfeit Count (Donald Love)", "Love On The Rocks (Donald Love)", "L.C. Confidential (Church Confessional)",
+			"The Passion Of The Heist (Church Confessional)", "Karmageddon (Church Confessional)", "False Idols (Church Confessional)", "Rough Justice (Salvatore)",
+			"Dead Reckoning (Salvatore)", "Shogun Showdown (Salvatore)", "The Shoreside Redemption (Salvatore)", "The Sicilian Gambit (Salvatore)",
+			"Panlantic Land Grab (Donald Love)", "Stop the Press (Donald Love)", "Morgue Party Resurrection (Donald Love)", "No Money, Mo' Problems (Donald Love)",
+			"Bringing the House Down (Donald Love)", "Love on the Run (Donald Love)", "More Deadly than the Male (Toshiko Kasen)", "Cash Clash (Toshiko Kasen)",
+			"A Date with Death (Toshiko Kasen)", "Cash in Kazuki's Chips (Toshiko Kasen)"
+		};
+#endif
+
 
 const char *iniControllerActions[] = { "PED_FIREWEAPON", "PED_CYCLE_WEAPON_RIGHT", "PED_CYCLE_WEAPON_LEFT", "GO_FORWARD", "GO_BACK", "GO_LEFT", "GO_RIGHT", "PED_SNIPER_ZOOM_IN",
 	"PED_SNIPER_ZOOM_OUT", "VEHICLE_ENTER_EXIT", "CAMERA_CHANGE_VIEW_ALL_SITUATIONS", "PED_JUMPING", "PED_SPRINT", "PED_LOOKBEHIND", "PED_DUCK", "PED_ANSWER_PHONE", 
@@ -717,49 +757,64 @@ SpawnCar(int id)
 	CVector playerpos;
 	CStreaming::RequestModel(id, 0);
 	CStreaming::LoadAllRequestedModels(false);
-	if(CStreaming::HasModelLoaded(id)){
+	if(CStreaming::HasModelLoaded(id)) {
 		playerpos = FindPlayerCoors();
+#ifndef MAZAHAKA_MISC // Vehicles created with the help of cheat codes are spawned in front of the player
 		int node;
-		if(!CModelInfo::IsBoatModel(id)){
+		if(!CModelInfo::IsBoatModel(id)) {
 			node = ThePaths.FindNodeClosestToCoors(playerpos, 0, 100.0f, false, false);
-			if(node < 0)
-				return;
+			if(node < 0) return;
 		}
+#endif
 
 		CVehicle *v;
 		if(CModelInfo::IsBoatModel(id))
 			v = new CBoat(id, RANDOM_VEHICLE);
-		else if(CModelInfo::IsBikeModel(id))
-			v = new CBike(id, RANDOM_VEHICLE);
 		else
 			v = new CAutomobile(id, RANDOM_VEHICLE);
 
 		v->bHasBeenOwnedByPlayer = true;
-		if(carCol1)
-			DebugMenuEntrySetAddress(carCol1, &v->m_currentColour1);
-		if(carCol2)
-			DebugMenuEntrySetAddress(carCol2, &v->m_currentColour2);
+		if(carCol1) DebugMenuEntrySetAddress(carCol1, &v->m_currentColour1);
+		if(carCol2) DebugMenuEntrySetAddress(carCol2, &v->m_currentColour2);
 
+#ifdef MAZAHAKA_MISC // Vehicles created with the help of cheat codes are spawned in front of the player
+		v->SetPosition(FindPlayerPed()->GetPosition() + CVector(0.0f, 0.0f, 2.5f) + FindPlayerPed()->GetForward() * 5.0f);
+		CVector leftVector = -FindPlayerPed()->GetRight();
+		v->SetOrientation(0.0f, 0.0f, leftVector.Heading());
+#else
 		if(CModelInfo::IsBoatModel(id))
-			v->SetPosition(TheCamera.GetPosition() + TheCamera.GetForward()*15.0f);
+			v->SetPosition(TheCamera.GetPosition() + TheCamera.GetForward() * 15.0f);
 		else
 			v->SetPosition(ThePaths.m_pathNodes[node].GetPosition());
 
 		v->GetMatrix().GetPosition().z += 4.0f;
 		v->SetOrientation(0.0f, 0.0f, 3.49f);
+#endif
 		v->SetStatus(STATUS_ABANDONED);
 		v->m_nDoorLock = CARLOCK_UNLOCKED;
 		CWorld::Add(v);
+		//v->bExplosionProof = true; // mazahaka debug
 	}
 }
+
 
 static void
 FixCar(void)
 {
 	CVehicle *veh = FindPlayerVehicle();
-	if(veh == nil)
-		return;
+#ifdef MAZAHAKA_MISC
+	if(veh == nil) { // try fix near player car mazahaka
+		veh = GetVehicleNearPlayer();
+	}
+#endif
+
+	if(veh == nil) { return; }
+		
+#ifdef MAZAHAKA_MISC
+	veh->m_fHealth = 1200.0f;
+#else
 	veh->m_fHealth = 1000.0f;
+#endif
 	if(veh->IsCar()){
 		((CAutomobile*)veh)->Damage.SetEngineStatus(0);
 		((CAutomobile*)veh)->Fix();
@@ -772,6 +827,11 @@ FixCar(void)
 static void
 TeleportToWaypoint(void)
 {
+	CPlayerPed *pPlayer = FindPlayerPed();
+	if(pPlayer && (!pPlayer->InVehicle())) {
+		pPlayer->m_nPedState = PedState::PED_IDLE;
+		pPlayer->StopNonPartialAnims();
+	}
 	if (CRadar::TargetMarkerId == -1)
 		return;
 	CEntity* pEntityToTeleport = FindPlayerEntity();
@@ -779,6 +839,18 @@ TeleportToWaypoint(void)
 	CStreaming::LoadScene(vNewPos);
 	CStreaming::LoadSceneCollision(vNewPos);
 	vNewPos.z = CWorld::FindGroundZForCoord(vNewPos.x, vNewPos.y) + pEntityToTeleport->GetDistanceFromCentreOfMassToBaseOfModel();
+	pEntityToTeleport->Teleport(vNewPos);
+}
+
+static void
+TeleportToCamPoint(void)
+{
+	CEntity *pEntityToTeleport = FindPlayerEntity();
+	CVector vNewPos = TheCamera.GetPosition();
+	CGame::currLevel = CTheZones::GetLevelFromPosition(&vNewPos);
+	CCollision::SortOutCollisionAfterLoad();
+	CStreaming::LoadScene(vNewPos);
+	//vNewPos.z = CWorld::FindGroundZForCoord(vNewPos.x, vNewPos.y) + pEntityToTeleport->GetDistanceFromCentreOfMassToBaseOfModel();
 	pEntityToTeleport->Teleport(vNewPos);
 }
 #endif
@@ -797,6 +869,58 @@ ToggleComedy(void)
 	if(veh == nil)
 		return;
 	veh->bComedyControls = !veh->bComedyControls;
+}
+
+static void
+KillPedPool(void)
+{
+	CPlayerPed *pPlayer = FindPlayerPed();
+	bool key = (GetAsyncKeyState(VK_SHIFT) & 0x8000); // CPad::GetPad(0)->GetShift()??
+	int j = CPools::GetPedPool()->GetSize();
+	while(j-- > 0) {
+		if(CPed *ped = CPools::GetPedPool()->GetSlot(j)) { // COMMAND_SET_CHAR_HEALTH
+			if(ped == pPlayer) { continue; }           // need??
+			if(key && (ped->InVehicle())) { continue; }
+			ped->m_fHealth = 0.0f;
+			ped->SetDie(ANIM_STD_KO_FRONT, 4.0f, 0.0f);
+		}
+	}
+}
+
+static void
+FixVehPool(void)
+{
+	int j = CPools::GetPedPool()->GetSize();
+	while(j-- > 0) {
+		if(CVehicle *pVehicle = CPools::GetVehiclePool()->GetSlot(j)) { // COMMAND_SET_CHAR_HEALTH
+			if(pVehicle->IsCar()) {
+				pVehicle->m_fHealth = 1200.0f;
+				((CAutomobile *)pVehicle)->Damage.SetEngineStatus(0);
+				((CAutomobile *)pVehicle)->Fix();// carsh handling
+			}/* else if(pVehicle->IsBike()) {
+				((CBike *)pVehicle)->Fix();
+			}*/
+		}
+	}
+}
+
+static void
+BlowVehPool(void) // BlowUpCarsCheat
+{
+	CVehicle *pPlayerVeh = FindPlayerVehicle();
+	if(pPlayerVeh == nil) { // try fix near player car mazahaka
+		pPlayerVeh = GetVehicleNearPlayer();
+	}
+	//if(pPlayerVeh == nil) { return; }
+
+	int i = CPools::GetVehiclePool()->GetSize();
+	while(i-- > 0) {
+		if(CVehicle *veh = CPools::GetVehiclePool()->GetSlot(i))
+		{
+			if(veh == pPlayerVeh) { continue; }
+			veh->BlowUpCar(nil);
+		}
+	}
 }
 
 static void
@@ -999,7 +1123,7 @@ DebugMenuPopulate(void)
 		DebugMenuAddCmd("Spawn", "Spawn Rhino", [](){ SpawnCar(MI_RHINO); });
 		DebugMenuAddCmd("Spawn", "Spawn Firetruck", [](){ SpawnCar(MI_FIRETRUCK); });
 		DebugMenuAddCmd("Spawn", "Spawn Predator", [](){ SpawnCar(MI_PREDATOR); });
-		DebugMenuAddCmd("Spawn", "Spawn PCJ 600", [](){ SpawnCar(MI_PCJ600); });
+		//DebugMenuAddCmd("Spawn", "Spawn PCJ 600", [](){ SpawnCar(MI_PCJ600); }); // wtf lol ? mazahaka
 		DebugMenuAddCmd("Spawn", "Spawn Faggio", [](){ SpawnCar(MI_FAGGIO); });
 		DebugMenuAddCmd("Spawn", "Spawn Freeway", [](){ SpawnCar(MI_FREEWAY); });
 
@@ -1121,16 +1245,21 @@ extern bool gbRenderDebugEnvMap;
 
 #ifdef MAP_ENHANCEMENTS
 		DebugMenuAddCmd("Game", "Teleport to map waypoint", TeleportToWaypoint);
+		DebugMenuAddCmd("Game", "Teleport to cam waypoint", TeleportToCamPoint);
 #endif
 		DebugMenuAddCmd("Game", "Fix Car", FixCar);
 		DebugMenuAddCmd("Game", "Place Car on Road", PlaceOnRoad);
 		DebugMenuAddCmd("Game", "Switch car collision", SwitchCarCollision);
 		DebugMenuAddCmd("Game", "Toggle Comedy Controls", ToggleComedy);
+		DebugMenuAddCmd("Game", "Kill Ped Pool", KillPedPool); // mazahaka
+		DebugMenuAddCmd("Game", "Kill Vehicle Pool", BlowVehPool);   // mazahaka
+		DebugMenuAddCmd("Game", "Fix Vehicle Pool", FixVehPool);  // mazahaka
 
 
 #ifdef MISSION_SWITCHER
 		DebugMenuEntry *missionEntry;
-		static const char* missions[] = {
+		// in global sp
+		/*static const char* missions[] = {
 			"initial: objects", "initial: hidden packages", "initial: car generators", "initial: pickups", "initial: unique stunt jumps",
 			"initial: player", "initial: general info", "initial: lods", "initial: weapons", "Home Sweet Home", "Taxi-Driver Sub-Mission",
 			"Paramedic Sub-Mission", "Vigilante Sub-Mission", "Karmageddon", "Firefighter Sub-Mission", "Trash Dash", "RC Triad Take-Down",
@@ -1155,7 +1284,7 @@ extern bool gbRenderDebugEnvMap;
 			"Panlantic Land Grab (Donald Love)", "Stop the Press (Donald Love)", "Morgue Party Resurrection (Donald Love)", "No Money, Mo' Problems (Donald Love)",
 			"Bringing the House Down (Donald Love)", "Love on the Run (Donald Love)", "More Deadly than the Male (Toshiko Kasen)", "Cash Clash (Toshiko Kasen)",
 			"A Date with Death (Toshiko Kasen)", "Cash in Kazuki's Chips (Toshiko Kasen)"
-		};
+		};*/
 
 		missionEntry = DebugMenuAddVar("Game", "Select mission", &nextMissionToSwitch, nil, 1, 0, ARRAY_SIZE(missions) - 1, missions);
 		DebugMenuEntrySetWrap(missionEntry, true);
@@ -1172,6 +1301,33 @@ extern bool gbRenderDebugEnvMap;
 		DebugMenuAddCmd("Cam", "Normal", []() { DebugCamMode = 0; });
 		DebugMenuAddCmd("Cam", "Reset Statics", ResetCamStatics);
 
+#ifdef MAZAHAKA_DEBUG_CUSTOM_VALS
+		//DebugMenuAddVar("MaZaHaKa", "Debug1", &CMBlur::Drunkness, nil, 0.05f, 0, 1.0f);
+		//DebugMenuAddVar("MaZaHaKa", "Debug1", &PLG_TD::Debug1_val, nil, 0.05f, 0, 1.0f);
+
+		//---float
+		DebugMenuAddVar("MaZaHaKa", "fDebug1", &PLG_TD::fDebug1_val, nil, 0.01f, 0, 1.0f);
+		DebugMenuAddVar("MaZaHaKa", "fDebug2", &PLG_TD::fDebug2_val, nil, 0.01f, 0, 1.0f);
+		DebugMenuAddVar("MaZaHaKa", "fDebug3", &PLG_TD::fDebug3_val, nil, 0.01f, 0, 1.0f);
+		DebugMenuAddVar("MaZaHaKa", "fDebug4", &PLG_TD::fDebug4_val, nil, 0.01f, 0, 1.0f);
+		DebugMenuAddVar("MaZaHaKa", "fDebug5", &PLG_TD::fDebug5_val, nil, 0.01f, 0, 1.0f);
+
+		//---int
+		int vmax = 32565;
+		SETTWEAKPATH("MaZaHaKa");
+		TWEAKINT32(PLG_TD::iDebug1_val, 0, vmax, 1);
+		TWEAKINT32(PLG_TD::iDebug2_val, 0, vmax, 1);
+		TWEAKINT32(PLG_TD::iDebug3_val, 0, vmax, 1);
+		TWEAKINT32(PLG_TD::iDebug4_val, 0, vmax, 1);
+		TWEAKINT32(PLG_TD::iDebug5_val, 0, vmax, 1);
+
+		/*DebugMenuAddVar("MaZaHaKa", "iDebug1", &PLG_TD::iDebug1_val, nil, (uint8_t)1, (uint8_t)0, max);
+		DebugMenuAddVar("MaZaHaKa", "iDebug2", &PLG_TD::iDebug2_val, nil, 1, 0, max);
+		DebugMenuAddVar("MaZaHaKa", "iDebug3", &PLG_TD::iDebug3_val, nil, 1, 0, max);
+		DebugMenuAddVar("MaZaHaKa", "iDebug4", &PLG_TD::iDebug4_val, nil, 1, 0, max);
+		DebugMenuAddVar("MaZaHaKa", "iDebug5", &PLG_TD::iDebug5_val, nil, 1, 0, max);*/
+#endif
+
 		CTweakVars::AddDBG("Debug");
 	}
 }
@@ -1186,6 +1342,7 @@ static char re3_buff[re3_buffsize];
 #ifndef MASTER
 void re3_assert(const char *expr, const char *filename, unsigned int lineno, const char *func)
 {
+	//return; // tmp
 #ifdef _WIN32
 	int nCode;
 
@@ -1212,8 +1369,9 @@ void re3_assert(const char *expr, const char *filename, unsigned int lineno, con
 	strcat_s(re3_buff, re3_buffsize, "(Press Retry to debug the application)");
 
 
-	nCode = ::MessageBoxA(nil, re3_buff, "RELCS Assertion Failed!",
+	nCode = ::MessageBoxA(nil, re3_buff, "reVCS Assertion Failed!",
 		MB_ABORTRETRYIGNORE|MB_ICONHAND|MB_SETFOREGROUND|MB_TASKMODAL);
+	return; // mazahaka
 
 	if (nCode == IDABORT)
 	{
@@ -1233,7 +1391,7 @@ void re3_assert(const char *expr, const char *filename, unsigned int lineno, con
 	abort();
 #else
 	// TODO
-	printf("\nRELCS ASSERT FAILED\n\tFile: %s\n\tLine: %d\n\tFunction: %s\n\tExpression: %s\n",filename,lineno,func,expr);
+	printf("\nreVCS ASSERT FAILED\n\tFile: %s\n\tLine: %d\n\tFunction: %s\n\tExpression: %s\n",filename,lineno,func,expr);
 	assert(false);
 #endif
 }
@@ -1287,14 +1445,14 @@ void re3_usererror(const char *format, ...)
 	vsprintf_s(re3_buff, re3_buffsize, format, va);
 	va_end(va);
 	
-	::MessageBoxA(nil, re3_buff, "RELCS Error!",
+	::MessageBoxA(nil, re3_buff, "reVCS Error!",
 		MB_OK|MB_ICONHAND|MB_SETFOREGROUND|MB_TASKMODAL);
 
 	raise(SIGABRT);
 	_exit(3);
 #else
 	vsprintf(re3_buff, format, va);
-	printf("\nRELCS Error!\n\t%s\n",re3_buff);
+	printf("\nreVCS Error!\n\t%s\n",re3_buff);
 	assert(false);
 #endif
 }
