@@ -30,6 +30,9 @@ bool bDispColInMem;
 // CColStore::LoadAllBoundingBoxes(void)
 // CColStore::Write(base::cRelocatableChunkWriter &)
 
+//#ifdef MAZAHAKA_MAPZONE_VC
+//#else
+#ifndef MAZAHAKA_MAPZONE_VC
 const CVector&
 LevelPos(eLevelName level)
 {
@@ -61,6 +64,7 @@ PosLevel(const CVector &pos)
 		return lastOtherLevel;
 	}
 }
+#endif
 
 void
 CColStore::Initialise(void)
@@ -251,6 +255,7 @@ CColStore::AddCollisionNeededAtPosn(const CVector &pos)
 	secondPosition = pos;
 }
 
+#ifndef MAZAHAKA_MAPZONE_VC
 void
 CColStore::LoadCollision(const CVector &pos, eLevelName level)
 {
@@ -326,7 +331,56 @@ CColStore::LoadCollision(const CVector &pos, eLevelName level)
 	}
 	bLoadAtSecondPosition = false;
 }
+#else
+void
+CColStore::LoadCollision(const CVector2D &pos)
+{
+	int i;
 
+	if(CStreaming::ms_disableStreaming)
+		return;
+
+	for(i = 1; i < COLSTORESIZE; i++){
+		if(GetSlot(i) == nil)
+			continue;
+
+		bool wantThisOne = false;
+
+		if(GetBoundingBox(i).IsPointInside(pos) ||
+		   bLoadAtSecondPosition && GetBoundingBox(i).IsPointInside(secondPosition, -119.0f) ||
+		   strcmp(GetColName(i), "yacht") == 0){
+			wantThisOne = true;
+		}else{
+			for (int j = 0; j < MAX_CLEANUP; j++) {
+				CPhysical* pEntity = nil;
+				cleanup_entity_struct* pCleanup = &CTheScripts::MissionCleanUp.m_sEntities[j];
+				if (pCleanup->type == CLEANUP_CAR) {
+					pEntity = CPools::GetVehiclePool()->GetAt(pCleanup->id);
+					if (!pEntity || pEntity->GetStatus() == STATUS_WRECKED)
+						continue;
+				}
+				else if (pCleanup->type == CLEANUP_CHAR) {
+					pEntity = CPools::GetPedPool()->GetAt(pCleanup->id);
+					if (!pEntity || ((CPed*)pEntity)->DyingOrDead())
+						continue;
+				}
+				if (pEntity && !pEntity->bDontLoadCollision && !pEntity->bIsFrozen) {
+					if (GetBoundingBox(i).IsPointInside(pEntity->GetPosition(), -80.0f))
+						wantThisOne = true;
+				}
+			}
+		}
+
+		if(wantThisOne)
+			CStreaming::RequestCol(i, STREAMFLAGS_PRIORITY);
+		else
+			CStreaming::RemoveCol(i);
+	}
+	bLoadAtSecondPosition = false;
+}
+#endif
+
+#ifndef MAZAHAKA_MAPZONE_VC
 void
 CColStore::RequestCollision(const CVector &pos)
 {
@@ -336,6 +390,17 @@ CColStore::RequestCollision(const CVector &pos)
 		if(GetSlot(i) && DoScriptsWantThisIn(i) && GetBoundingBox(i).IsPointInside(LevelPos(PosLevel(pos)), -115.0f))
 			CStreaming::RequestCol(i, STREAMFLAGS_PRIORITY);
 }
+#else
+void
+CColStore::RequestCollision(const CVector/*2D*/ &pos)
+{
+	int i;
+
+	for(i = 1; i < COLSTORESIZE; i++)
+		if(GetSlot(i) && GetBoundingBox(i).IsPointInside(pos, -115.0f))
+			CStreaming::RequestCol(i, STREAMFLAGS_PRIORITY);
+}
+#endif
 
 void
 CColStore::EnsureCollisionIsInMemory(const CVector &pos)
@@ -374,6 +439,7 @@ CColStore::DoScriptsWantThisIn(int32 slot)
 	return true;
 }
 
+#ifndef MAZAHAKA_MAPZONE_VC
 bool
 CColStore::HasCollisionLoaded(eLevelName level)
 {
@@ -388,12 +454,28 @@ CColStore::HasCollisionLoaded(eLevelName level)
 			return false;
 	return true;
 }
+#else
+bool
+CColStore::HasCollisionLoaded(const CVector2D &pos)
+{
+	int i;
 
+	for(i = 1; i < COLSTORESIZE; i++)
+		if(GetSlot(i) && GetBoundingBox(i).IsPointInside(pos, -115.0f) &&
+		   !GetSlot(i)->isLoaded)
+			return false;
+	return true;
+}
+#endif
+
+//lcs
+#ifndef MAZAHAKA_MAPZONE_VC
 bool
 CColStore::HasCollisionLoaded(const CVector &pos)
 {
 	return HasCollisionLoaded(PosLevel(pos));
 }
+#endif
 
 void
 CColStore::Load(bool onlyBB, CPool<ColDef> *pool)

@@ -437,6 +437,7 @@ CPathFind::LoadPathFindData(void)
 	return false;
 }
 
+//__declspec(noinline)
 void
 CPathFind::PreparePathData(void)
 {

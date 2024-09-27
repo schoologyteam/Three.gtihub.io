@@ -58,7 +58,7 @@ void FlushLog();
 #define SET_FLOAT_PARAM(i, x) *(float*)&ScriptParams[i] = x
 #define SET_VECTOR_PARAM(i, v) { *(float*)&ScriptParams[i] = (v).x; *(float*)&ScriptParams[i+1] = (v).y; *(float*)&ScriptParams[i+2] = (v).z; }
 
-#define GTA_SCRIPT_COLLECTIVE
+//#define GTA_SCRIPT_COLLECTIVE // vcs tmp disabled ------------
 
 struct intro_script_rectangle 
 {
@@ -229,9 +229,10 @@ enum {
 	MAX_STACK_DEPTH = 16,
 	NUM_LOCAL_VARS = 96,
 	NUM_TIMERS = 2,
-	NUM_GLOBAL_SLOTS = 26
+	NUM_GLOBAL_SLOTS = 25,//string \/
 };
 
+//https://gtamods.com/wiki/SCM_Instruction#Concrete_data_types
 enum {
 	ARGUMENT_END = 0,
 	ARGUMENT_INT_ZERO,
@@ -243,7 +244,8 @@ enum {
 	ARGUMENT_INT8,
 	ARGUMENT_INT16,
 	ARGUMENT_FLOAT,
-	ARGUMENT_TIMER,
+	ARGUMENT_STRING, // 0xF653F
+	ARGUMENT_TIMER, // 0xE5412 -=@, 0x4D6F9 -=@val
 	ARGUMENT_LOCAL = ARGUMENT_TIMER + NUM_TIMERS,
 	ARGUMENT_LOCAL_ARRAY = ARGUMENT_LOCAL + NUM_LOCAL_VARS,
 	ARGUMENT_GLOBAL = ARGUMENT_LOCAL_ARRAY + NUM_LOCAL_VARS,
@@ -252,6 +254,7 @@ enum {
 };
 
 static_assert(MAX_ARGUMENT <= 256, "MAX_ARGUMENT must be less or equal to 256");
+
 
 struct tCollectiveData
 {
@@ -290,6 +293,8 @@ struct script_corona
 	int flareType;
 };
 
+//class CTheScripts; // ahahahh
+
 class CRunningScript
 {
 	enum {
@@ -325,21 +330,22 @@ public:
 	CRunningScript* next;
 	CRunningScript* prev;
 	int32 m_nId;
-	char m_abScriptName[8];
+	//uint32 pad4; // mazahaka vcs
 	uint32 m_nIp;
 	uint32 m_anStack[MAX_STACK_DEPTH];
-	uint16 m_nStackPointer;
-	int32 m_anLocalVariables[NUM_LOCAL_VARS + 8 + NUM_TIMERS]; // TODO(LCS): figure out why 106
+	int32 m_anLocalVariables[NUM_LOCAL_VARS + 8 + NUM_TIMERS]; // TODO(VCS): figure out why 106
 	int32 m_nLocalsPointer;
+	uint32 m_nWakeTime;
+	uint16 m_nStackPointer;
+	uint16 m_nAndOrState;
 	bool m_bIsActive;
 	bool m_bCondResult;
 	bool m_bIsMissionScript;
 	bool m_bSkipWakeTime;
-	uint32 m_nWakeTime;
-	uint16 m_nAndOrState;
 	bool m_bNotFlag;
 	bool m_bDeatharrestEnabled;
 	bool m_bDeatharrestExecuted;
+	char m_abScriptName[8];
 	bool m_bMissionFlag;
 
 public:
@@ -364,8 +370,13 @@ public:
 
 	void CollectParameters(uint32*, int16, int* pParams = (int*)&ScriptParams);
 	int32 CollectNextParameterWithoutIncreasingPC(uint32);
-	int32* GetPointerToScriptVariable(uint32*, int16);
+	int32* GetPointerToScriptVariable(uint32*);
 	void StoreParameters(uint32*, int16);
+
+	// vcs todo inline. scriptspace static err
+	/*inline*/ const char *GetKeyFromScript(uint32 *pIp);
+	wchar *GetTextByKeyFromScript(uint32 *pIp);
+
 
 	int8 ProcessOneCommand();
 	void DoDeatharrestCheck();
@@ -409,9 +420,6 @@ public:
 	int8 ProcessCommands1100To1199(int32);
 	int8 ProcessCommands1200To1299(int32);
 	int8 ProcessCommands1300To1399(int32);
-	int8 ProcessCommands1400To1499(int32);
-	int8 ProcessCommands1500To1599(int32);
-	int8 ProcessCommands1600To1699(int32);
 
 	uint32 CollectLocateParameters(uint32*, bool);
 	void LocatePlayerCommand(int32, uint32*);
@@ -465,10 +473,6 @@ public:
 };
 
 
-enum {
-	VAR_LOCAL = 1,
-	VAR_GLOBAL = 2,
-};
 
 enum {
 	MAX_NUM_SCRIPTS = 128,
@@ -585,13 +589,18 @@ public:
 		return Read2BytesFromScript(pIp) / 16.0f;
 	}
 	static void ReadTextLabelFromScript(uint32* pIp, char* buf) {
-		strncpy(buf, (const char*)&CTheScripts::ScriptSpace[*pIp], KEY_LENGTH_IN_SCRIPT);
+		//script_assert(false && "LABEL RECHECK TO MY FUNCS!!");
+		script_assert(false && "REMOVE ME!!!!!!");
+		return; // возможно не нужна функция, usege GetTextByKeyFromScript GetKeyFromScript
+		//strncpy(buf, (const char*)&CTheScripts::ScriptSpace[*pIp], KEY_LENGTH_IN_SCRIPT);
 	}
-	static wchar* GetTextByKeyFromScript(uint32* pIp) {
-		wchar* text = TheText.Get((const char*)&CTheScripts::ScriptSpace[*pIp]);
-		*pIp += KEY_LENGTH_IN_SCRIPT;
-		return text;
-	}
+	//--------------VCS TODO PROBABLY REMOVED BY COLLECT
+	//static wchar* GetTextByKeyFromScript(uint32* pIp) {
+	//	wchar* text = TheText.Get((const char*)&CTheScripts::ScriptSpace[*pIp]);
+	//	*pIp += KEY_LENGTH_IN_SCRIPT;
+	//	return text;
+	//}
+
 	static int32 GetSizeOfVariableSpace()
 	{
 		uint32 tmp = 3;
@@ -725,3 +734,11 @@ enum {
 extern int gScriptsFile;
 extern CVector gVectorSetInLua;
 
+#define GetPlayerInfoByPoolHandler(pPlayerInfo, han)\
+CPed *gpi_ped = CPools::GetPedPool()->GetAt(han);\
+script_assert(gpi_ped);\
+CPlayerInfo *pPlayerInfo = ((CPlayerPed *)gpi_ped)->GetPlayerInfoForThisPlayerPed();\
+script_assert(pPlayerInfo);
+
+// CPlayerPed *pPlayer = FindPlayerPed();
+// CPlayerInfo *pPlayerInfo = &CWorld::Players[CWorld::PlayerInFocus];

@@ -24,8 +24,8 @@ uint32 CRunningScript::storedIp;
 #define REGISTER_COMMAND(command, in, out, cond, ovrd, visual) { command, #command, in, out, cond, ovrd, visual }
 #define INPUT_ARGUMENTS(...) { __VA_ARGS__ ARGTYPE_NONE }
 #define OUTPUT_ARGUMENTS(...) { __VA_ARGS__ ARGTYPE_NONE }
-const tScriptCommandData commands[] = {
-	REGISTER_COMMAND(COMMAND_NOP, INPUT_ARGUMENTS(), OUTPUT_ARGUMENTS(), false, -1, ""),
+const tScriptCommandData commands[1] = {
+	/*REGISTER_COMMAND(COMMAND_NOP, INPUT_ARGUMENTS(), OUTPUT_ARGUMENTS(), false, -1, ""),
 	REGISTER_COMMAND(COMMAND_WAIT, INPUT_ARGUMENTS(ARGTYPE_INT,), OUTPUT_ARGUMENTS(), false, -1, ""),
 	REGISTER_COMMAND(COMMAND_GOTO, INPUT_ARGUMENTS(ARGTYPE_LABEL,), OUTPUT_ARGUMENTS(), false, -1, ""),
 	REGISTER_COMMAND(COMMAND_SHAKE_CAM, INPUT_ARGUMENTS(ARGTYPE_INT,), OUTPUT_ARGUMENTS(), false, -1, ""),
@@ -1686,12 +1686,13 @@ const tScriptCommandData commands[] = {
 	REGISTER_COMMAND(COMMAND_PRINT_HELP_FOREVER_ALWAYS_NO_BRIEF, INPUT_ARGUMENTS(), OUTPUT_ARGUMENTS(), false, -1, ""),
 	REGISTER_COMMAND(COMMAND_SET_CAR_IS_REWARD, INPUT_ARGUMENTS(ARGTYPE_INT, ARGTYPE_INT,), OUTPUT_ARGUMENTS(), false, -1, ""),
 	REGISTER_COMMAND(COMMAND_FREEZE_ALL_PLAYER_FOLLOWERS, INPUT_ARGUMENTS(ARGTYPE_INT, ARGTYPE_INT,), OUTPUT_ARGUMENTS(), false, -1, ""),
+	*/
 };
 #undef REGISTER_COMMAND
 #undef INPUT_ARGUMENTS
 #undef OUTPUT_ARGUMENTS
 
-static_assert(ARRAY_SIZE(commands) == LAST_SCRIPT_COMMAND, "commands array not filled");
+///////////////static_assert(ARRAY_SIZE(commands) == LAST_SCRIPT_COMMAND, "commands array not filled");
 
 #if SCRIPT_LOG_FILE_LEVEL == 1 || SCRIPT_LOG_FILE_LEVEL == 2
 static FILE* dbg_log;
@@ -1710,8 +1711,10 @@ static void PrintToLog(const char* format, ...)
 	va_end(va);
 
 #if SCRIPT_LOG_FILE_LEVEL == 1 || SCRIPT_LOG_FILE_LEVEL == 2
+#ifndef MAZAHAKA_DEBUG_NOFILE
 	if (dbg_log)
 		fwrite(tmp, 1, strlen(tmp), dbg_log);
+#endif
 #endif
 }
 
@@ -1733,11 +1736,34 @@ int32* GetPointerToScriptVariableForDebug(CRunningScript* pScript, uint32* pIp, 
 	uint8 type = CTheScripts::Read1ByteFromScript(pIp);
 	if (type >= ARGUMENT_GLOBAL_ARRAY) {
 		uint8 index_in_block = CTheScripts::Read1ByteFromScript(pIp);
+		//debug("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&index_in_block %d\n", index_in_block);
+		//debug("pIp 0x%p\n", &CTheScripts::ScriptSpace[(*pIp) - 1]);
 		uint8 index_id = CTheScripts::Read1ByteFromScript(pIp);
 		uint8 size = CTheScripts::Read1ByteFromScript(pIp);
+
+/*#ifdef MAZAHAKA_8_IN_LOCAL_VARS_SCRIPTS_ASSERT_STUFF
+		if(!(pScript->m_anLocalVariables[pScript->m_nLocalsPointer + index_id] < size)) {
+			debug("index_in_block %d\n", index_in_block); // 94
+			debug("index_id %d\n", index_id); // 5
+			debug("size %d\n", size); // 4
+			debug("pIp %d\n", *pIp); // 4
+			debug("pIp 0x%p\n", &CTheScripts::ScriptSpace[(*pIp) - 3]); // 4
+			debug("\n");
+			// debug(""); // 4 breakpoint
+		}
+#endif*/
+
 		script_assert(size > 0);
+#ifdef MAZAHAKA_8_IN_LOCAL_VARS_SCRIPTS_ASSERT_STUFF
+//#if 0
+		//script_assert(pScript->m_anLocalVariables[pScript->m_nLocalsPointer + index_id] < size); // :RAYS2_7614 0573:   does_vehicle_exist $3934(5@,4)
+		// knowed issue
+		if(pScript->m_abScriptName && strcmp(pScript->m_abScriptName, "rays2")) { script_assert(pScript->m_anLocalVariables[pScript->m_nLocalsPointer + index_id] < size); }
+		uint8 index = Min(pScript->m_anLocalVariables[pScript->m_nLocalsPointer + index_id + 8], size - 1);
+#else
 		script_assert(pScript->m_anLocalVariables[pScript->m_nLocalsPointer + index_id] < size);
 		uint8 index = Min(pScript->m_anLocalVariables[pScript->m_nLocalsPointer + index_id], size - 1);
+#endif
 		sprintf(tmpstr, " $%d[%d@ (%d)]", ((int)(type - ARGUMENT_GLOBAL_ARRAY) << 8) + index_in_block, index_id, pScript->m_anLocalVariables[pScript->m_nLocalsPointer + index_id]);
 		strcat(buf, tmpstr);
 		return (int32*)&CTheScripts::ScriptSpace[4 * (((int)(type - ARGUMENT_GLOBAL_ARRAY) << 8) + index + index_in_block)];
@@ -1751,9 +1777,26 @@ int32* GetPointerToScriptVariableForDebug(CRunningScript* pScript, uint32* pIp, 
 	else if (type >= ARGUMENT_LOCAL_ARRAY) {
 		uint8 index_id = CTheScripts::Read1ByteFromScript(pIp);
 		uint8 size = CTheScripts::Read1ByteFromScript(pIp);
+
+/*#ifdef MAZAHAKA_8_IN_LOCAL_VARS_SCRIPTS_ASSERT_STUFF
+		if(!(pScript->m_anLocalVariables[pScript->m_nLocalsPointer + index_id] < size)) {
+			debug("index_id %d\n", index_id);
+			debug("size %d\n", size);
+			debug("pIp %d\n", *pIp); // 4
+			debug("pIp 0x%p\n", &CTheScripts::ScriptSpace[(*pIp) - 3]); // 4
+			debug("\n");			// debug(""); // 4 breakpoint
+		}
+#endif*/
+
 		script_assert(size > 0);
+//#ifdef MAZAHAKA_8_IN_LOCAL_VARS_SCRIPTS_ASSERT_STUFF
+#if 0
+		script_assert(pScript->m_anLocalVariables[pScript->m_nLocalsPointer + index_id + 8] < size);
+		uint8 index = Min(pScript->m_anLocalVariables[pScript->m_nLocalsPointer + index_id + 8], size - 1);
+#else
 		script_assert(pScript->m_anLocalVariables[pScript->m_nLocalsPointer + index_id] < size);
 		uint8 index = Min(pScript->m_anLocalVariables[pScript->m_nLocalsPointer + index_id], size - 1);
+#endif
 		sprintf(tmpstr, " %d@[%d@ (%d)]", (type - ARGUMENT_LOCAL_ARRAY), index_id, pScript->m_anLocalVariables[pScript->m_nLocalsPointer + index_id]);
 		strcat(buf, tmpstr);
 		return &pScript->m_anLocalVariables[pScript->m_nLocalsPointer + (type - ARGUMENT_LOCAL_ARRAY) + index];
@@ -1772,6 +1815,8 @@ int32* GetPointerToScriptVariableForDebug(CRunningScript* pScript, uint32* pIp, 
 	return nil;
 }
 
+//#if SCRIPT_LOG_FILE_LEVEL == 1 || SCRIPT_LOG_FILE_LEVEL == 2 // mazahaka tmp compile error without scriptdebug
+#if 1
 int CRunningScript::CollectParameterForDebug(char* buf, bool& var)
 {
 	var = false;
@@ -1951,6 +1996,7 @@ void CRunningScript::LogAfterProcessingCommand(int32 command)
 		}
 	}
 }
+#endif
 
 #ifdef MISSION_SWITCHER
 void

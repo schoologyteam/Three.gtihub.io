@@ -32,12 +32,24 @@ public:
 	static void AddCollisionNeededAtPosn(const CVector &pos);
 	static void LoadAllCollision(void);
 	static void RemoveAllCollision(void);
+#ifndef MAZAHAKA_MAPZONE_VC
+	//lcs
 	static void LoadCollision(const CVector &pos, eLevelName level = LEVEL_GENERIC);
+#else
+	static void LoadCollision(const CVector2D &pos);
+#endif
 	static void RequestCollision(const CVector &pos);
 	static void EnsureCollisionIsInMemory(const CVector &pos);
 	static bool DoScriptsWantThisIn(int32 slot);
+#ifndef MAZAHAKA_MAPZONE_VC
+	//lcs
 	static bool HasCollisionLoaded(eLevelName level);
 	static bool HasCollisionLoaded(const CVector &pos);
+#else
+	static bool HasCollisionLoaded(const CVector2D &pos);
+#endif
+
+
 	static void Load(bool, CPool<ColDef> *pool);
 
 	static ColDef *GetSlot(int slot) {
@@ -48,4 +60,6 @@ public:
 	}
 };
 
+#ifndef MAZAHAKA_MAPZONE_VC
 const CVector& LevelPos(eLevelName level);
+#endif

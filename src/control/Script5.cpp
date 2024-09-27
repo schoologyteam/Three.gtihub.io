@@ -29,13 +29,13 @@ uint32 CRunningScript::CollectLocateParameters(uint32* pIp, bool b3D)
 	uint8 type = CTheScripts::Read1ByteFromScript(&ip);
 	if (type >= ARGUMENT_LOCAL) {
 		ip--;
-		id = (uint32)(uintptr)GetPointerToScriptVariable(&ip, 0);
+		id = (uint32)(uintptr)GetPointerToScriptVariable(&ip);
 	}
 	CollectParameters(pIp, b3D ? 7 : 5, &(ScriptParams[1]));
 	return id;
 }
 
-void CRunningScript::LocatePlayerCommand(int32 command, uint32* pIp)
+/*void CRunningScript::LocatePlayerCommand(int32 command, uint32* pIp)
 {
 	bool b3D, result, debug, decided = false;
 	float X, Y, Z, dX, dY, dZ;
@@ -114,14 +114,14 @@ void CRunningScript::LocatePlayerCommand(int32 command, uint32* pIp)
 	UpdateCompareFlag(result);
 	if (debug && Abs(pos.x - X) < 80.0f && Abs(pos.y - Y) < 80.0f)
 		CTheScripts::HighlightImportantArea(id, X - dX, Y - dY, X + dX, Y + dY, b3D ? Z : MAP_Z_LOW_LIMIT);
-	/*
-	if (CTheScripts::DbgFlag) {
-		if (b3D)
-			CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
-		else
-			CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
-	}
-	*/
+	
+	//if (CTheScripts::DbgFlag) {
+	//	if (b3D)
+	//		CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
+	//	else
+	//		CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
+	//}
+	
 }
 
 void CRunningScript::LocatePlayerCharCommand(int32 command, uint32* pIp)
@@ -203,14 +203,14 @@ void CRunningScript::LocatePlayerCharCommand(int32 command, uint32* pIp)
 #else
 		CTheScripts::HighlightImportantArea((uintptr)this + m_nIp, X - dX, Y - dY, X + dX, Y + dX, b3D ? Z : MAP_Z_LOW_LIMIT);
 #endif
-	/*
-	if (CTheScripts::DbgFlag) {
-		if (b3D)
-			CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
-		else
-			CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
-	}
-	*/
+	
+	//if (CTheScripts::DbgFlag) {
+	//	if (b3D)
+	//		CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
+	//	else
+	//		CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
+	//}
+	
 }
 
 void CRunningScript::LocatePlayerCarCommand(int32 command, uint32* pIp)
@@ -282,15 +282,15 @@ void CRunningScript::LocatePlayerCarCommand(int32 command, uint32* pIp)
 	UpdateCompareFlag(result);
 	if (debug)
 		CTheScripts::HighlightImportantArea((uintptr)this + m_nIp, X - dX, Y - dY, X + dX, Y + dY, b3D ? Z : MAP_Z_LOW_LIMIT);
-	/*
-	if (CTheScripts::DbgFlag) {
-		if (b3D)
-			CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
-		else
-			CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
-	}
-	*/
-}
+	
+	//if (CTheScripts::DbgFlag) {
+	//	if (b3D)
+	//		CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
+	//	else
+	//		CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
+	//}
+	
+}*/
 
 void CRunningScript::LocateCharCommand(int32 command, uint32* pIp)
 {
@@ -388,14 +388,14 @@ void CRunningScript::LocateCharCommand(int32 command, uint32* pIp)
 	UpdateCompareFlag(result);
 	if (debug)
 		CTheScripts::HighlightImportantArea(id, X - dX, Y - dY, X + dX, Y + dY, b3D ? Z : MAP_Z_LOW_LIMIT);
-	/*
-	if (CTheScripts::DbgFlag) {
-		if (b3D)
-			CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
-		else
-			CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
-	}
-	*/
+	
+	//if (CTheScripts::DbgFlag) {
+	//	if (b3D)
+	//		CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
+	//	else
+	//		CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
+	//}
+	
 }
 
 void CRunningScript::LocateCharCharCommand(int32 command, uint32* pIp)
@@ -479,14 +479,14 @@ void CRunningScript::LocateCharCharCommand(int32 command, uint32* pIp)
 #else
 		CTheScripts::HighlightImportantArea((uintptr)this + m_nIp, X - dX, Y - dY, X + dX, Y + dX, b3D ? Z : MAP_Z_LOW_LIMIT);
 #endif
-	/*
-	if (CTheScripts::DbgFlag) {
-		if (b3D)
-			CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
-		else
-			CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
-	}
-	*/
+	
+	//if (CTheScripts::DbgFlag) {
+	//	if (b3D)
+	//		CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
+	//	else
+	//		CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
+	//}
+	
 }
 
 void CRunningScript::LocateCharCarCommand(int32 command, uint32* pIp)
@@ -559,14 +559,14 @@ void CRunningScript::LocateCharCarCommand(int32 command, uint32* pIp)
 	UpdateCompareFlag(result);
 	if (debug)
 		CTheScripts::HighlightImportantArea((uintptr)this + m_nIp, X - dX, Y - dY, X + dX, Y + dY, b3D ? Z : MAP_Z_LOW_LIMIT);
-	/*
-	if (CTheScripts::DbgFlag) {
-		if (b3D)
-			CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
-		else
-			CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
-	}
-	*/
+	
+	//if (CTheScripts::DbgFlag) {
+	//	if (b3D)
+	//		CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
+	//	else
+	//		CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
+	//}
+	
 }
 
 void CRunningScript::LocateCharObjectCommand(int32 command, uint32* pIp)
@@ -639,14 +639,14 @@ void CRunningScript::LocateCharObjectCommand(int32 command, uint32* pIp)
 	UpdateCompareFlag(result);
 	if (debug)
 		CTheScripts::HighlightImportantArea((uintptr)this + m_nIp, X - dX, Y - dY, X + dX, Y + dY, b3D ? Z : MAP_Z_LOW_LIMIT);
-	/*
-	if (CTheScripts::DbgFlag) {
-		if (b3D)
-			CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
-		else
-			CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
-	}
-	*/
+	
+	//if (CTheScripts::DbgFlag) {
+	//	if (b3D)
+	//		CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
+	//	else
+	//		CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
+	//}
+	
 }
 
 void CRunningScript::LocateCarCommand(int32 command, uint32* pIp)
@@ -713,14 +713,14 @@ void CRunningScript::LocateCarCommand(int32 command, uint32* pIp)
 	UpdateCompareFlag(result);
 	if (debug)
 		CTheScripts::HighlightImportantArea(id, X - dX, Y - dY, X + dX, Y + dY, b3D ? Z : MAP_Z_LOW_LIMIT);
-	/*
-	if (CTheScripts::DbgFlag) {
-		if (b3D)
-			CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
-		else
-			CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
-	}
-	*/
+	
+	//if (CTheScripts::DbgFlag) {
+	//	if (b3D)
+	//		CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
+	//	else
+	//		CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
+	//}
+	
 }
 
 void CRunningScript::LocateObjectCommand(int32 command, uint32* pIp)
@@ -773,28 +773,28 @@ void CRunningScript::LocateObjectCommand(int32 command, uint32* pIp)
 	UpdateCompareFlag(result);
 	if (debug)
 		CTheScripts::HighlightImportantArea(id, X - dX, Y - dY, X + dX, Y + dY, b3D ? Z : MAP_Z_LOW_LIMIT);
-	/*
-	if (CTheScripts::DbgFlag) {
-		if (b3D)
-			CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
-		else
-			CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
-	}
-	*/
+	
+	//if (CTheScripts::DbgFlag) {
+	//	if (b3D)
+	//		CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
+	//	else
+	//		CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
+	//}
+	
 }
 
 void CRunningScript::LocateSniperBulletCommand(int32 command, uint32* pIp)
 {
 	bool b3D, result, debug;
 	float X, Y, Z, dX, dY, dZ;
-	switch (command) {
+	/*switch (command) { // vcs tmp TODO:----------------------------------------------
 	case COMMAND_LOCATE_SNIPER_BULLET_3D:
 		b3D = true;
 		break;
 	default:
 		b3D = false;
 		break;
-	}
+	}*/
 	CollectParameters(pIp, b3D ? 7 : 5);
 	X = GET_FLOAT_PARAM(0);
 	Y = GET_FLOAT_PARAM(1);
@@ -814,17 +814,17 @@ void CRunningScript::LocateSniperBulletCommand(int32 command, uint32* pIp)
 	UpdateCompareFlag(result);
 	if (debug)
 		CTheScripts::HighlightImportantArea((uintptr)this + m_nIp, X - dX, Y - dY, X + dX, Y + dY, b3D ? Z : MAP_Z_LOW_LIMIT);
-	/*
-	if (CTheScripts::DbgFlag) {
-		if (b3D)
-			CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
-		else
-			CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
-	}
-	*/
+	
+	//if (CTheScripts::DbgFlag) {
+	//	if (b3D)
+	//		CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
+	//	else
+	//		CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
+	//}
+	
 }
 
-void CRunningScript::PlayerInAreaCheckCommand(int32 command, uint32* pIp)
+/*void CRunningScript::PlayerInAreaCheckCommand(int32 command, uint32* pIp)
 {
 	bool b3D, result, debug, decided = false;
 	float infX, infY, infZ, supX, supY, supZ;
@@ -933,14 +933,14 @@ void CRunningScript::PlayerInAreaCheckCommand(int32 command, uint32* pIp)
 	UpdateCompareFlag(result);
 	if (debug)
 		CTheScripts::HighlightImportantArea((uintptr)this + m_nIp, infX, infY, supX, supY, b3D ? (infZ + supZ) / 2 : MAP_Z_LOW_LIMIT);
-	/*
-	if (CTheScripts::DbgFlag) {
-		if (b3D)
-			CTheScripts::DrawDebugCube(infX, infY, infZ, supX, supY, supZ);
-		else
-			CTheScripts::DrawDebugSquare(infX, infY, supX, supY);
-	}
-	*/
+	
+	//if (CTheScripts::DbgFlag) {
+	//	if (b3D)
+	//		CTheScripts::DrawDebugCube(infX, infY, infZ, supX, supY, supZ);
+	//	else
+	//		CTheScripts::DrawDebugSquare(infX, infY, supX, supY);
+	//}
+	
 }
 
 void CRunningScript::PlayerInAngledAreaCheckCommand(int32 command, uint32* pIp)
@@ -1058,17 +1058,17 @@ void CRunningScript::PlayerInAngledAreaCheckCommand(int32 command, uint32* pIp)
 	if (debug)
 		CTheScripts::HighlightImportantAngledArea((uintptr)this + m_nIp, infX, infY, supX, supY,
 			rotatedSupX, rotatedSupY, rotatedInfX, rotatedInfY, b3D ? (infZ + supZ) / 2 : MAP_Z_LOW_LIMIT);
-	/*
-	if (CTheScripts::DbgFlag) {
-		if (b3D)
-			CTheScripts::DrawDebugAngledCube(infX, infY, infZ, supX, supY, supZ,
-				rotatedSupX, rotatedSupY, rotatedInfX, rotatedInfY);
-		else
-			CTheScripts::DrawDebugAngledSquare(infX, infY, supX, supY,
-				rotatedSupX, rotatedSupY, rotatedInfX, rotatedInfY);
-	}
-	*/
-}
+	
+	//if (CTheScripts::DbgFlag) {
+	//	if (b3D)
+	//		CTheScripts::DrawDebugAngledCube(infX, infY, infZ, supX, supY, supZ,
+	//			rotatedSupX, rotatedSupY, rotatedInfX, rotatedInfY);
+	//	else
+	//		CTheScripts::DrawDebugAngledSquare(infX, infY, supX, supY,
+	//			rotatedSupX, rotatedSupY, rotatedInfX, rotatedInfY);
+	//}
+	
+}*/
 
 void CRunningScript::CharInAreaCheckCommand(int32 command, uint32* pIp)
 {
@@ -1528,14 +1528,14 @@ void CRunningScript::LocateCollectiveCommand(int32 command, uint32* pIp)
 	UpdateCompareFlag(result);
 	if (debug)
 		CTheScripts::HighlightImportantArea(id, X - dX, Y - dY, X + dX, Y + dY, b3D ? Z : MAP_Z_LOW_LIMIT);
-	/*
-	if (CTheScripts::DbgFlag) {
-		if (b3D)
-			CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
-		else
-			CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
-	}
-	*/
+	
+	//if (CTheScripts::DbgFlag) {
+	//	if (b3D)
+	//		CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
+	//	else
+	//		CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
+	//}
+	
 }
 
 void CRunningScript::LocateCollectiveCharCommand(int32 command, uint32* pIp)
@@ -1621,14 +1621,14 @@ void CRunningScript::LocateCollectiveCharCommand(int32 command, uint32* pIp)
 	UpdateCompareFlag(result);
 	if (debug)
 		CTheScripts::HighlightImportantArea((uintptr)this + m_nIp, X - dX, Y - dY, X + dX, Y + dY, b3D ? Z : MAP_Z_LOW_LIMIT);
-	/*
-	if (CTheScripts::DbgFlag) {
-		if (b3D)
-			CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
-		else
-			CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
-	}
-	*/
+	
+	//if (CTheScripts::DbgFlag) {
+	//	if (b3D)
+	//		CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
+	//	else
+	//		CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
+	//}
+	
 }
 
 void CRunningScript::LocateCollectiveCarCommand(int32 command, uint32* pIp)
@@ -1707,14 +1707,14 @@ void CRunningScript::LocateCollectiveCarCommand(int32 command, uint32* pIp)
 	UpdateCompareFlag(result);
 	if (debug)
 		CTheScripts::HighlightImportantArea((uintptr)this + m_nIp, X - dX, Y - dY, X + dX, Y + dY, b3D ? Z : MAP_Z_LOW_LIMIT);
-	/*
-	if (CTheScripts::DbgFlag) {
-		if (b3D)
-			CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
-		else
-			CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
-	}
-	*/
+	
+	//if (CTheScripts::DbgFlag) {
+	//	if (b3D)
+	//		CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
+	//	else
+	//		CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
+	//}
+	
 }
 
 void CRunningScript::LocateCollectivePlayerCommand(int32 command, uint32* pIp)
@@ -1792,14 +1792,14 @@ void CRunningScript::LocateCollectivePlayerCommand(int32 command, uint32* pIp)
 	UpdateCompareFlag(result);
 	if (debug)
 		CTheScripts::HighlightImportantArea((uintptr)this + m_nIp, X - dX, Y - dY, X + dX, Y + dY, b3D ? Z : MAP_Z_LOW_LIMIT);
-	/*
-	if (CTheScripts::DbgFlag) {
-		if (b3D)
-			CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
-		else
-			CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
-	}
-	*/
+	
+	//if (CTheScripts::DbgFlag) {
+	//	if (b3D)
+	//		CTheScripts::DrawDebugCube(X - dX, Y - dY, Z - dZ, X + dX, Y + dY, Z + dZ);
+	//	else
+	//		CTheScripts::DrawDebugSquare(X - dX, Y - dY, X + dX, Y + dY);
+	//}
+	
 }
 
 void CRunningScript::CollectiveInAreaCheckCommand(int32 command, uint32* pIp)
@@ -1912,14 +1912,14 @@ void CRunningScript::CollectiveInAreaCheckCommand(int32 command, uint32* pIp)
 	UpdateCompareFlag(result);
 	if (debug)
 		CTheScripts::HighlightImportantArea((uintptr)this + m_nIp, infX, infY, supX, supY, b3D ? (infZ + supZ) / 2 : MAP_Z_LOW_LIMIT);
-	/*
-	if (CTheScripts::DbgFlag) {
-		if (b3D)
-			CTheScripts::DrawDebugCube(infX, infY, infZ, supX, supY, supZ);
-		else
-			CTheScripts::DrawDebugSquare(infX, infY, supX, supY);
-	}
-	*/
+	
+	//if (CTheScripts::DbgFlag) {
+	//	if (b3D)
+	//		CTheScripts::DrawDebugCube(infX, infY, infZ, supX, supY, supZ);
+	//	else
+	//		CTheScripts::DrawDebugSquare(infX, infY, supX, supY);
+	//}
+	
 }
 #endif
 
