@@ -46,6 +46,7 @@ public:
 
 	static int32 GetNumModelInfos(void) { return msNumModelInfos; }
 	static CBaseModelInfo *GetModelInfo(const char *name, int *id);
+	//__declspec(noinline)
 	static CBaseModelInfo *GetModelInfo(int id){
 		if(id < 0 || id >= msNumModelInfos)
 			return nil;

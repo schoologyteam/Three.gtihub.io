@@ -798,12 +798,21 @@ spentAmmoCheck:
 					goto switchDetectDone;
 				}
 			}
+#ifdef MAZAHAKA_TRY_FIX_AUTOCHANGE_WEAPON_SLOT_IF_ZERO_AMMO
+			if(!(GetWeapon()->m_nAmmoTotal == 0 && CPad::GetPad(0)->GetWeapon() /*&& m_nSelectedWepSlot != WEAPONSLOT_UNARMED*/)) { m_nSelectedWepSlot = WEAPONSLOT_UNARMED; }
+#else
 			m_nSelectedWepSlot = WEAPONSLOT_UNARMED;
+#endif
 		}
 	}
 
 switchDetectDone:
-	if (m_nSelectedWepSlot != m_currentWeapon) {
+	// mazahaka fix no auto change weapoon
+	if ((m_nSelectedWepSlot != m_currentWeapon)
+#ifdef MAZAHAKA_TRY_FIX_AUTOCHANGE_WEAPON_SLOT_IF_ZERO_AMMO
+	   && !(GetWeapon()->m_nAmmoTotal == 0 && CPad::GetPad(0)->GetWeapon() /*&& m_nSelectedWepSlot != WEAPONSLOT_UNARMED*/) // todo
+#endif
+		) {
 		if (m_nPedState != PED_ATTACK && m_nPedState != PED_AIM_GUN && m_nPedState != PED_FIGHT) {
 			RemoveWeaponAnims(m_currentWeapon, -1000.0f);
 			MakeChangesForNewWeapon(m_nSelectedWepSlot);

@@ -29,10 +29,17 @@
 uint16 nPlayerInComboMove;
 RpClump* flyingClumpTemp;
 
+//CPed::LoadFightData(void) init
+//PedFightMoves —ћќ“–»!!! € сменил блок Melee бо он раньше и ломалась логика выдачи анимки в pedfight
 FightMove tFightMoves[NUM_FIGHTMOVES] =
-{
+{ // MAZAHAKA нель€ коменить так как тер€ютс€ default anim id, нужно прописывать тогда в fistfite (не работает не может найти)
+    //{ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, HITLEVEL_NULL, 0, 0},
+	//CPed::LoadFightData(void)
+	//if (strcmp(animName, "default") != 0) { // if no default
+	// if comment this, default animid was error no have id
+
 	//fistfite.dat (init/load in CPed::LoadFightData(void))
-    { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    /*{ ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
     { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
     { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
     { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
@@ -54,9 +61,38 @@ FightMove tFightMoves[NUM_FIGHTMOVES] =
     { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
     { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
     { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
-    { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_WALK, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },*/
+
+
+	//---test block
+	{ ANIM_STD_NOT_INITED_SLOT_4_FISTFITE, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_NOT_INITED_SLOT_4_FISTFITE, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_NOT_INITED_SLOT_4_FISTFITE, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_NOT_INITED_SLOT_4_FISTFITE, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_NOT_INITED_SLOT_4_FISTFITE, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_NOT_INITED_SLOT_4_FISTFITE, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_NOT_INITED_SLOT_4_FISTFITE, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_NOT_INITED_SLOT_4_FISTFITE, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_NOT_INITED_SLOT_4_FISTFITE, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
 	
-/*
+	//{ ANIM_STD_KICKGROUND, 10.f/30.f, 14.f/30.f, 0.0f, 0.4f, 1.0f, HITLEVEL_GROUND, 1, 0 }, // need?
+	{ ANIM_STD_NOT_INITED_SLOT_4_FISTFITE, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+
+    { ANIM_STD_NOT_INITED_SLOT_4_FISTFITE, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_NOT_INITED_SLOT_4_FISTFITE, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_NOT_INITED_SLOT_4_FISTFITE, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_NOT_INITED_SLOT_4_FISTFITE, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_NOT_INITED_SLOT_4_FISTFITE, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+    { ANIM_STD_NOT_INITED_SLOT_4_FISTFITE, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+
+	// default anim name not init/load animId! Hardcode (Katana bug mazahaka fix)
+	{ ANIM_ATTACK_1, 4.f/30.f, 7.f/30.f, 10.f/30.f, 0.4f, 1.0f, HITLEVEL_HIGH, 1, 0 }, // 9  Attack1 H: Animation Name "default" !!! WEAPON_knife_1
+	{ ANIM_ATTACK_2, 4.f/30.f, 7.f/30.f, 10.f/30.f, 0.4f, 1.0f, HITLEVEL_HIGH, 1, 0 }, // 10 Attack2 H: Animation Name "default" !!! WEAPON_knife_2
+	{ ANIM_ATTACK_3, 4.f / 30.f, 7.f / 30.f, 10.f / 30.f, 0.4f, 1.0f, HITLEVEL_HIGH, 1, 0 }, // 11 Attack3 H: Animation Name "default" !!! WEAPON_knife_3
+    
+    { ANIM_STD_NOT_INITED_SLOT_4_FISTFITE, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, HITLEVEL_NULL, 0, 0 },
+
+  /*
   { ANIM_STD_NUM,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f, HITLEVEL_NULL, 0, 0 },
   { ANIM_STD_PUNCH, 0.2f, 8.f/30.f, 0.0f, 0.3f, 1.0f, HITLEVEL_HIGH, 1, 0 },
   { ANIM_STD_FIGHT_IDLE,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f, HITLEVEL_NULL, 0, 0 },
@@ -1133,6 +1169,7 @@ CPed::StartFightAttack(uint8 buttonPressure)
 	m_fightButtonPressure = 0;
 
 	if (m_curFightMove > FIGHTMOVE_NULL && m_curFightMove != FIGHTMOVE_IDLE) {
+		//m_curFightMove 12 kickflor 12<9 false anim
 		animAssoc = CAnimManager::BlendAnimation(GetClump(), m_curFightMove < FIGHTMOVE_MELEE1 ? ASSOCGRP_STD : weaponInfo->m_AnimToPlay,
 			tFightMoves[m_curFightMove].animId, 8.0f);
 
@@ -2403,6 +2440,9 @@ CPed::LoadFightData(void)
 		tFightMoves[moveId].extendReachMultiplier = extendReachMultiplier;
 		tFightMoves[moveId].damage = damage;
 		tFightMoves[moveId].flags = flags;
+#ifdef MAZAHAKA_ANIM_STUFF
+		tFightMoves[moveId].loaded_by_fistfite = true; // detect no inited fite (katana anim error)
+#endif
 
 		switch (hitLevel) {
 			case 'G':
@@ -2424,7 +2464,7 @@ CPed::LoadFightData(void)
 				break;
 		}
 
-		if (strcmp(animName, "default") != 0) {
+		if (strcmp(animName, "default") != 0) { // if no default
 			if (strcmp(animName, "null") != 0) {
 				animAssoc = CAnimManager::GetAnimAssociation(ASSOCGRP_STD, animName);
 				tFightMoves[moveId].animId = (AnimationId)animAssoc->animId;
@@ -2433,6 +2473,7 @@ CPed::LoadFightData(void)
 			}
 		}
 		moveId++;
+		debug("moveId %d\n", moveId);
 	}
 }
 

@@ -731,6 +731,7 @@ RpGeometry *_rpGeometrySetSurfaceProperties(RpGeometry *geometry, const RwSurfac
 RwFrame *RpClumpGetFrame(const RpClump * clump) { return clump->getFrame(); }
 RpClump *RpClumpSetFrame(RpClump * clump, RwFrame * frame) { clump->setFrame(frame); return clump; }
 RpClump *RpClumpForAllAtomics(RpClump * clump, RpAtomicCallBack callback, void *pData) {
+	//if(!clump) { return nil; }
 	FORLIST(lnk, clump->atomics)
 		if(callback(Atomic::fromClump(lnk), pData) == nil)
 			break;

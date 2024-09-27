@@ -93,6 +93,9 @@ struct FightMove
 	uint8 hitLevel; // FightMoveHitLevel
 	uint8 damage;
 	uint8 flags;
+#ifdef MAZAHAKA_ANIM_STUFF
+	bool loaded_by_fistfite = false; // detect no inited fite (katana anim error)
+#endif
 };
 
 // TODO: This is eFightState on mobile.
@@ -110,10 +113,10 @@ enum PedFightMoves
 	FIGHTMOVE_COMBO_B1,
 	FIGHTMOVE_COMBO_B2,
 	FIGHTMOVE_COMBO_B3,
-	// Melee
+	/*// Melee // ---------mazahaka ??? kick floor error  m_curFightMove < FIGHTMOVE_MELEE1 ? ASSOCGRP_STD CPed::StartFightAttack(uint8 buttonPressure) оно брало не из std бо melee раньше по индексу
 	FIGHTMOVE_MELEE1,
 	FIGHTMOVE_MELEE2,
-	FIGHTMOVE_MELEE3,
+	FIGHTMOVE_MELEE3,*/
 	// Special
 	FIGHTMOVE_GROUNDKICK,
 	// Opponent
@@ -123,8 +126,15 @@ enum PedFightMoves
 	FIGHTMOVE_HITLEFT,
 	FIGHTMOVE_HITONFLOOR,
 	FIGHTMOVE_HITBEHIND,
+
+	// Melee // mazahaka moved
+	FIGHTMOVE_MELEE1,
+	FIGHTMOVE_MELEE2,
+	FIGHTMOVE_MELEE3,
+
 	FIGHTMOVE_IDLE2NORM,
-/*
+
+	/*
 	FIGHTMOVE_KNEE,
 	FIGHTMOVE_PUNCHHOOK,
 	FIGHTMOVE_PUNCHJAB,

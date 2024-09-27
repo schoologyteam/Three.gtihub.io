@@ -1223,11 +1223,17 @@ CVehicleModelInfo::LoadVehicleColours(void)
 				&colors[12], &colors[13],
 				&colors[14], &colors[15]);
 			CVehicleModelInfo *mi = (CVehicleModelInfo*)CModelInfo::GetModelInfo(name, nil);
-			assert(mi);
-			mi->m_numColours = (n-1)/2;
-			for(i = 0; i < mi->m_numColours; i++){
-				mi->m_colours1[i] = colors[i*2 + 0];
-				mi->m_colours2[i] = colors[i*2 + 1];
+			//assert(mi);
+			if(!mi) { 
+			//	debug("");
+			}
+			if(mi)
+			{
+				mi->m_numColours = (n - 1) / 2;
+				for(i = 0; i < mi->m_numColours; i++) {
+					mi->m_colours1[i] = colors[i * 2 + 0];
+					mi->m_colours2[i] = colors[i * 2 + 1];
+				}
 			}
 		}
 	}

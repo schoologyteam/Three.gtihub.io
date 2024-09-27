@@ -131,8 +131,10 @@ void
 CBaseModelInfo::SetModelName(const char *name)
 {
 	m_nameKey = CKeyGen::GetUppercaseKey(name);
-	if (!gUseChunkFiles)
+	if(!gUseChunkFiles) {
+		if(!m_name) { m_name = new char[MAX_MODEL_NAME]; } // mazahaka tmp fix NULL in reload to new
 		strcpy(m_name, name);
+	}
 }
 
 void
