@@ -21,9 +21,12 @@ CFerryInst* CFerry::mspInst;
 #define FERRY_SPEED (0.1f)
 #define FERRY_SLOWDOWN_DISTANCE (50.0f)
 #define FERRY_TIME_STOPPED_AT_STATION (10.0f)
+#define FERRY_MODEL_INDEX MI_FERRY
+//#define FERRY_MODEL_INDEX MI_BANSHEE
 
 CFerry::CFerry(int32 id, uint8 owner) : CVehicle(owner)
 {
+#ifdef GTA_FERRY
 	m_bPlayerArrivedHorn = false;
 	m_nTimeAlongPath = 0;
 	m_vehType = VEHICLE_TYPE_FERRY;
@@ -51,10 +54,12 @@ CFerry::CFerry(int32 id, uint8 owner) : CVehicle(owner)
 	m_nCollision = 0;
 	m_pDefaultColModel = mi->GetColModel();
 	m_level = LEVEL_GENERIC;
+#endif
 }
 
 void CFerry::Init(void* pInstancePtr)
 {
+#ifdef GTA_FERRY
 	mspInst = (CFerryInst*)pInstancePtr;
 	if (mspInst)
 		return;
@@ -198,10 +203,12 @@ void CFerry::Init(void* pInstancePtr)
 		// end
 		pPath->aLineBits[j].time = pPath->TotalDurationOfTrack;
 	}
+#endif
 }
 
 void CFerry::InitFerrys(void)
 {
+#ifdef GTA_FERRY
 	printf("init ferrys\n");
 #ifdef GTA_NETWORK
 	if (gIsMultiplayerGame)
@@ -212,12 +219,14 @@ void CFerry::InitFerrys(void)
 	for (int i = 0; i < NUM_FERRIES; i++)
 		mspInst->m_apFerries[i] = nil;
 	CStreaming::LoadAllRequestedModels(false);
-	CStreaming::RequestModel(MI_FERRY, 0);
+	CStreaming::RequestModel(FERRY_MODEL_INDEX, 0);
 	CStreaming::LoadAllRequestedModels(false);
+#endif
 }
 
 void CFerry::SwitchFerryCollision(int type)
 {
+#ifdef GTA_FERRY
 	for (int i = 0; i < NUM_FERRIES; i++) {
 		CFerry* pFerry = GetFerry(i);
 		if (pFerry && pFerry->m_nCollision != type) {
@@ -229,10 +238,12 @@ void CFerry::SwitchFerryCollision(int type)
 				mi->SetColModel(pFerry->m_pDefaultColModel, true);
 		}
 	}
+#endif
 }
 
 void CFerry::UpdateFerrys(void)
 {
+#ifdef GTA_FERRY
 	int i, j;
 	float t, deltaT;
 	if (mspInst->m_bFerriesDisabled)
@@ -301,18 +312,22 @@ void CFerry::UpdateFerrys(void)
 			}
 		}
 	}
+#endif
 }
 
 void CFerry::SetModelIndex(uint32 mi)
 {
+#ifdef GTA_FERRY
 	CVehicle::SetModelIndex(mi);
 	for (int i = 0; i < NUM_FERRY_NODES; i++)
 		m_aFerryNodes[i] = nil;
 	CClumpModelInfo::FillFrameArray(GetClump(), m_aFerryNodes);
+#endif
 }
 
 void CFerry::PreRender(void)
 {
+#ifdef GTA_FERRY
 	CVehicleModelInfo* mi = GetModelInfo();
 	if (CGeneral::GetRandomTrueFalse())
 		CParticle::AddParticle(PARTICLE_FERRY_CHIM_SMOKE, GetMatrix() * mi->m_positions[FERRY_POS_CHIM_LEFT], CVector(0.0f, 0.0f, 0.2f));
@@ -344,16 +359,20 @@ void CFerry::PreRender(void)
 	CVector vRearLightPosition2 = vRearLightPosition - 2 * mi->m_positions[FERRY_POS_LIGHT_REAR].x * GetRight();
 	CCoronas::RegisterCorona((uint32)(uintptr)this + 28, 255, 0, 0, 255, vRearLightPosition2, 1.0f, 80.0f, CCoronas::TYPE_NORMAL, CCoronas::FLARE_NONE, CCoronas::REFLECTION_ON, CCoronas::LOSCHECK_OFF, CCoronas::STREAK_ON, 0.0f);
 	CCoronas::RegisterCorona((uint32)(uintptr)this + 29, 255, 0, 0, 255, vRearLightPosition, 1.0f, 80.0f, CCoronas::TYPE_NORMAL, CCoronas::FLARE_NONE, CCoronas::REFLECTION_ON, CCoronas::LOSCHECK_OFF, CCoronas::STREAK_ON, 0.0f);
+#endif
 }
 
 void CFerry::Render(void)
 {
+#ifdef GTA_FERRY
 	m_bAlreadyRendered = true;
 	CEntity::Render();
+#endif
 }
 
 void CFerry::RenderAllRemaning(void)
 {
+#ifdef GTA_FERRY
 #ifdef GTA_NETWORK
 	if (gIsMultiplayerGame)
 		return;
@@ -366,19 +385,23 @@ void CFerry::RenderAllRemaning(void)
 			pFerry->m_bAlreadyRendered = false;
 		}
 	}
+#endif
 }
 
 void CFerry::FerryHitStuff(CPtrList& lst)
 {
+#ifdef GTA_FERRY
 	for (CPtrNode* pNode = lst.first; pNode != nil; pNode = pNode->next) {
 		CPhysical* pEntity = (CPhysical*)pNode->item;
 		if (pEntity != this && Abs(GetPosition().x - pEntity->GetPosition().z) < 1.5f)
 			pEntity->bHitByTrain = true;
 	}
+#endif
 }
 
 void CFerry::ProcessControl(void)
 {
+#ifdef GTA_FERRY
 	if (gbModelViewer)
 		return;
 	PruneWakeTrail();
@@ -564,15 +587,15 @@ void CFerry::ProcessControl(void)
 		if (m_rwObject)
 			DeleteRwObject();
 	}
-	else if (CStreaming::HasModelLoaded(MI_FERRY)) {
+	else if (CStreaming::HasModelLoaded(FERRY_MODEL_INDEX)) {
 		if (m_rwObject == nil) {
 			m_modelIndex = -1;
-			SetModelIndex(MI_FERRY);
+			SetModelIndex(FERRY_MODEL_INDEX);
 		}
 	}
 	else {
 		if (FindPlayerCoors().z * GetPosition().z >= 0.0f)
-			CStreaming::RequestModel(MI_FERRY, STREAMFLAGS_DEPENDENCY);
+			CStreaming::RequestModel(FERRY_MODEL_INDEX, STREAMFLAGS_DEPENDENCY);
 	}
 
 	// Hit stuff
@@ -610,10 +633,12 @@ void CFerry::ProcessControl(void)
 				FerryHitStuff(s->m_lists[ENTITYLIST_PEDS_OVERLAP]);
 			}
 	}
+#endif
 }
 
 void CFerry::OpenFerryDoor(float ratio)
 {
+#ifdef GTA_FERRY
 	if (!m_rwObject)
 		return;
 
@@ -640,10 +665,12 @@ void CFerry::OpenFerryDoor(float ratio)
 
 	doorL.UpdateRW();
 	doorR.UpdateRW();
+#endif
 }
 
 CVector CFerry::GetBoardingSpace(CFerry::eSpaceUse use, CFerry::eSpaceStyle style, uint8 position)
 {
+#ifdef GTA_FERRY
 	CVehicleModelInfo* pModelInfo = GetModelInfo();
 	CVector space;
 	if (m_nFerryId & 1) {
@@ -669,10 +696,14 @@ CVector CFerry::GetBoardingSpace(CFerry::eSpaceUse use, CFerry::eSpaceStyle styl
 		break;
 	}
 	return space;
+#else
+	return CVector();
+#endif
 }
 
 CFerry* CFerry::GetClosestFerry(float x, float y)
 {
+#ifdef GTA_FERRY
 	int closest = -1;
 	float mindist = 9999.9f;
 	for (int i = 0; i < NUM_FERRIES; i++) {
@@ -688,15 +719,23 @@ CFerry* CFerry::GetClosestFerry(float x, float y)
 	if (closest == -1)
 		return nil;
 	return GetFerry(closest);
+#else
+	return nil;
+#endif
 }
 
 bool CFerry::IsDocked(void)
 {
+#ifdef GTA_FERRY
 	return m_bFerryDocked;
+#else
+	return false;
+#endif
 }
 
 void CFerry::OpenDoor(void)
 {
+#ifdef GTA_FERRY
 	printf("opening the ferry door\n");
 	m_nDoorState = FERRY_DOOR_OPENING;
 	m_nDoorTimer = CTimer::GetTimeInMilliseconds() + 10000;
@@ -708,42 +747,58 @@ void CFerry::OpenDoor(void)
 	if (fDistToCar4 < fDistToCar1)
 		m_bUseFrontDoor = false;
 	AudioManager.DirectlyEnqueueSample(SFX_GATE_START_CLU, SFX_BANK_0, 0, 1, 22050, 127, 20);
+#endif
 }
 
 void CFerry::CloseDoor(void)
 {
+#ifdef GTA_FERRY
 	printf("closing the ferry door\n");
 	m_nDoorState = FERRY_DOOR_CLOSING;
 	m_nDoorTimer = CTimer::GetTimeInMilliseconds() + 10000;
 	AudioManager.DirectlyEnqueueSample(SFX_GATE_START_CLU, SFX_BANK_0, 0, 1, 22050, 127, 20); // shouldn't this be SFX_GATE_STOP_CLU?
+#endif
 }
 
 bool CFerry::IsDoorOpen(void)
 {
+#ifdef GTA_FERRY
 	return m_nDoorState == FERRY_DOOR_OPEN;
+#else
+	return false;
+#endif
 }
 
 bool CFerry::IsDoorClosed(void)
 {
+#ifdef GTA_FERRY
 	return m_nDoorState == FERRY_DOOR_CLOSED;
+#else
+	return false;
+#endif
 }
 
 void CFerry::CompleteDorrMovement(void)
 {
+#ifdef GTA_FERRY
 	m_nDoorTimer = 0;
+#endif
 }
 
 void CFerry::DissableFerryPath(int)
 {
+#ifdef GTA_FERRY
+#endif
 }
 
 void CFerry::EnableFerryPath(int path)
 {
+#ifdef GTA_FERRY
 	CStreaming::LoadAllRequestedModels(false);
-	CStreaming::RequestModel(MI_FERRY, 0);
+	CStreaming::RequestModel(FERRY_MODEL_INDEX, 0);
 	CStreaming::LoadAllRequestedModels(false);
 	for (int i = path * 2; i < path * 2 + 2; i++) {
-		CFerry* pFerry = new CFerry(MI_FERRY, PERMANENT_VEHICLE);
+		CFerry *pFerry = new CFerry(FERRY_MODEL_INDEX, PERMANENT_VEHICLE);
 		bool bDirect = i & 1;
 		mspInst->m_apFerries[i] = pFerry;
 		pFerry->SetPosition(0.0f, 0.0f, 0.0f);
@@ -754,15 +809,19 @@ void CFerry::EnableFerryPath(int path)
 		pFerry->m_nCurTrackNode = 0;
 		CWorld::Add(pFerry);
 	}
+#endif
 }
 
 void CFerry::SkipFerryToNextDock(void)
 {
+#ifdef GTA_FERRY
 	m_nSkipFerryStatus = 1;
+#endif
 }
 
 void CFerry::PruneWakeTrail(void)
 {
+#ifdef GTA_FERRY
 	int16 num_remaining = 0;
 	for (int i = 0; i < NUM_WAKE_POINTS; i++) {
 		if (mspInst->m_afWakePointTimer[m_nFerryId][i] <= 0.0f)
@@ -775,10 +834,12 @@ void CFerry::PruneWakeTrail(void)
 		num_remaining++;
 	}
 	mspInst->m_anNumWakePoints[m_nFerryId] = num_remaining;
+#endif
 }
 
 void CFerry::AddWakePoint(CVector point)
 {
+#ifdef GTA_FERRY
 	if (mspInst->m_afWakePointTimer[m_nFerryId][0] > 0.0f) {
 		int nNewWakePoints = Min(NUM_WAKE_POINTS - 1, mspInst->m_anNumWakePoints[m_nFerryId]);
 		for (int i = 0; i < nNewWakePoints; i++) {
@@ -789,10 +850,12 @@ void CFerry::AddWakePoint(CVector point)
 	mspInst->m_avWakePoints[m_nFerryId][0] = point;
 	mspInst->m_afWakePointTimer[m_nFerryId][0] = 900.0f; // TODO: define
 	mspInst->m_anNumWakePoints[m_nFerryId] += 1;
+#endif
 }
 
 void CFerry::PlayArrivedHorn(void)
 {
+#ifdef GTA_FERRY
 	if (m_bPlayerArrivedHorn)
 		return;
 	m_bPlayerArrivedHorn = true;
@@ -801,23 +864,31 @@ void CFerry::PlayArrivedHorn(void)
 		uint8 volume = (200.0f - fDistToCamera) / 200.0f * 127;
 		AudioManager.DirectlyEnqueueSample(SFX_CAR_HORN_TRUCK, SFX_BANK_0, 0, 1, 18000, volume, 50);
 	}
+#endif
 }
 
 CVector CFerry::GetNearestDoor(CVector)
 {
+#ifdef GTA_FERRY
 	return CVector(0.0f, 0.0f, 1.0f);
+#else
+	return CVector();
+#endif
 }
 
 void CFerry::SetupForMultiplayer(void)
 {
+#ifdef GTA_FERRY
 	for (int i = 0; i < NUM_FERRIES; i++)
 		mspInst->m_apFerries[i] = nil;
 	printf("setting up the ferrys for multiplayer\n");
-	CStreaming::SetModelIsDeletable(MI_FERRY);
+	CStreaming::SetModelIsDeletable(FERRY_MODEL_INDEX);
+#endif
 }
 
 void CFerry::Write(base::cRelocatableChunkWriter& writer)
 {
+#ifdef GTA_FERRY
 	writer.AllocateRaw(mspInst, sizeof(*mspInst), 4);
 	if (!mspInst)
 		return;
@@ -829,5 +900,6 @@ void CFerry::Write(base::cRelocatableChunkWriter& writer)
 		writer.AllocateRaw(mspInst->pPathData[i]->aLineBits, (NUM_FERRY_STATIONS * 4 + 2) * sizeof(CFerryInterpolationLine), 4);
 		writer.AddPatch(&mspInst->pPathData[i]->aTrackNodes);
 	}
+#endif
 }
 

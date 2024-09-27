@@ -46,6 +46,9 @@ public:
 	uint16 m_nNumWakePoints;
 	CVector2D m_avec2dWakePoints[32];
 	float m_afWakePointLifeTime[32];
+#ifdef MAZAHAKA_MISC
+	//bool m_bIsBlowProof; // like explosion proof but if exproof and check in blow its fire but not blow and broke game logic
+#endif
 
 	static float MAX_WAKE_LENGTH;
 	static float MIN_WAKE_INTERVAL;

@@ -4893,8 +4893,10 @@ CAutomobile::BlowUpCar(CEntity *culprit)
 {
 	RpAtomic *atomic;
 
-	if(!bCanBeDamaged)
-		return;
+	if(!bCanBeDamaged) { return; }
+#ifdef MAZAHAKA_MISC
+	//if(bExplosionProof) { return; } // mazahaka // fire
+#endif
 
 	if(culprit == FindPlayerPed() || culprit == FindPlayerVehicle()){
 		CWorld::Players[CWorld::PlayerInFocus].m_nHavocLevel += 20;

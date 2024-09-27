@@ -693,6 +693,7 @@ CPlane::RenderAllRemaning(void)
 void
 CPlane::InitPlanes(void)
 {
+#ifdef FLIGHT_PATH
 	int i;
 
 	CesnaMissionStatus = CESNA_STATUS_NONE;
@@ -802,6 +803,7 @@ CPlane::InitPlanes(void)
 		plane->m_nCurPathNode = 0;
 		CWorld::Add(plane);
 	}
+#endif
 }
 
 void

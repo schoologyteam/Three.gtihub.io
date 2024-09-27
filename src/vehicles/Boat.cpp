@@ -109,6 +109,9 @@ CBoat::CBoat(int mi, uint8 owner) : CVehicle(owner)
 		m_boom.Init(-PI/10.0f, PI/10.0f, 0, 2);
 	else
 		m_boom.Init(-PI/5.0f, PI/5.0f, 0, 2);
+#ifdef MAZAHAKA_MISC
+	//bool m_bIsBlowProof = false;
+#endif
 }
 
 void
@@ -840,8 +843,11 @@ CBoat::BlowUpCar(CEntity *culprit)
 	RwMatrix *matrix;
 	CObject *obj;
 
-	if(!bCanBeDamaged)
-		return;
+	if(!bCanBeDamaged) { return; }
+#ifdef MAZAHAKA_MISC
+	//if(bExplosionProof) { return; } // mazahaka
+	//if(m_bIsBlowProof) { return; } // mazahaka can explode if fire and exproof but if fire and blow proof dont!!
+#endif
 
 	// explosion pushes vehicle up
 	m_vecMoveSpeed.z += 0.13f;

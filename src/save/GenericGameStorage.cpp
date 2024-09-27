@@ -405,17 +405,50 @@ GenericLoad()
 	//ReadDataFromBlock("Loading AudioScript Objects \n", cAudioScriptObject::LoadAllAudioScriptObjects);
 	//LoadSaveDataBlock();
 	//ReadDataFromBlock("Loading ScriptPaths \n", CScriptPaths::Load);
+	// MAZAHAKA!! IF UNCOMMENT SAVE BLOCK CHECK !load bool CGame::ReInitGameObjectVariables(bool load) prolem reinit after load (empty save data)
 	LoadSaveDataBlock();
 	ReadDataFromBlock("Loading Player Info \n", CWorld::Players[CWorld::PlayerInFocus].LoadPlayerInfo);
 	LoadSaveDataBlock();
 	ReadDataFromBlock("Loading Stats \n", CStats::LoadStats);
-	assert(*CStats::LastMissionPassedName); // reinit after load bug. After load CStats was empty Mazahaka
-	//LoadSaveDataBlock();
-	//ReadDataFromBlock("Loading Set Pieces \n", CSetPieces::Load);
-	//LoadSaveDataBlock();
-	//ReadDataFromBlock("Loading Streaming Stuff \n", CStreaming::MemoryCardLoad);
-	//LoadSaveDataBlock();
-	//ReadDataFromBlock("Loading PedType Stuff \n", CPedType::Load);
+	//assert(*CStats::LastMissionPassedName); // init after load save vars!! mazahaka // tmp disabled
+	// debug("======================last mission: %s\n", CStats::LastMissionPassedName);
+
+	// Загрузка блока данных
+	/*if(!ReadDataFromFile(file, (uint8 *)&size, 4)) { return false; }
+	size = align4bytes(size);
+	if(!ReadDataFromFile(file, work_buff, size)) { return false; }
+	buf = work_buff;
+
+	// Чтение данных из блока "Loading Player Info \n"
+	debug("Loading Player Info \n");
+	memcpy(&size, buf, sizeof(size));
+	buf += align4bytes(sizeof(size));
+	CWorld::Players[CWorld::PlayerInFocus].LoadPlayerInfo(buf, size);
+	size = align4bytes(size);
+	buf += size;
+
+
+
+	// Загрузка следующего блока данных
+	if(!ReadDataFromFile(file, (uint8 *)&size, 4)) { return false; }
+	size = align4bytes(size);
+	if(!ReadDataFromFile(file, work_buff, size)) { return false; }
+	buf = work_buff;
+
+	// Чтение данных из блока "Loading Stats \n"
+	debug("Loading Stats \n");
+	memcpy(&size, buf, sizeof(size));
+	buf += align4bytes(sizeof(size));
+	CStats::LoadStats(buf, size);
+	size = align4bytes(size);
+	buf += size;*/
+
+	// LoadSaveDataBlock();
+	// ReadDataFromBlock("Loading Set Pieces \n", CSetPieces::Load);
+	// LoadSaveDataBlock();
+	// ReadDataFromBlock("Loading Streaming Stuff \n", CStreaming::MemoryCardLoad);
+	// LoadSaveDataBlock();
+	// ReadDataFromBlock("Loading PedType Stuff \n", CPedType::Load);
 	CStreaming::ReInit();
 	DMAudio.SetMusicMasterVolume(FrontEndMenuManager.m_PrefsMusicVolume);
 	DMAudio.SetEffectsMasterVolume(FrontEndMenuManager.m_PrefsSfxVolume);

@@ -40,13 +40,13 @@ public:
 	static bool WideStringCompare(wchar *str1, wchar *str2, uint16 size);
 	static void Process(void);
 	static void Display(void);
-	static void AddMessage(wchar *key, uint32 time, uint16 pos);
-	static void AddMessageJumpQ(wchar *key, uint32 time, uint16 pos);
-	static void AddMessageSoon(wchar *key, uint32 time, uint16 pos);
+	static void AddMessage(wchar *msg, uint32 time, uint16 pos);
+	static void AddMessageJumpQ(wchar *msg, uint32 time, uint16 pos);
+	static void AddMessageSoon(wchar *msg, uint32 time, uint16 pos);
 	static void ClearMessages(void);
 	static void ClearSmallMessagesOnly(void);
-	static void AddBigMessage(wchar *key, uint32 time, uint16 pos);
-	static void AddBigMessageQ(wchar *key, uint32 time, uint16 pos);
+	static void AddBigMessage(wchar *msg, uint32 time, uint16 pos);
+	static void AddBigMessageQ(wchar *msg, uint32 time, uint16 pos);
 	static void AddToPreviousBriefArray(wchar *text, int32 n1, int32 n2, int32 n3, int32 n4, int32 n5, int32 n6, wchar *string);
 	static void InsertNumberInString(wchar *src, int32 n1, int32 n2, int32 n3, int32 n4, int32 n5, int32 n6, wchar *dst);
 	static void InsertStringInString(wchar *str1, wchar *str2);

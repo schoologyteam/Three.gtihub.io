@@ -50,6 +50,9 @@
 #include "skeleton.h"
 #include "platform.h"
 #include "crossplatform.h"
+#ifdef MAZAHAKA_PLUGIN_CODE
+#include "../plugin/plugin.h"
+#endif
 
 #define MAX_SUBSYSTEMS		(16)
 
@@ -67,7 +70,7 @@ static RwBool useDefault;
 
 /* Class name for the MS Window's window class. */
 
-static const RwChar *AppClassName = RWSTRING("Grand theft auto 3");
+static const RwChar *AppClassName = RWSTRING("Grand theft auto vcs");
 
 static psGlobalType PsGlobal;
 
@@ -148,6 +151,19 @@ void CJoySticks::ClearJoyInfo(int joyID)
 	m_aJoys[joyID].m_bHasAxisR = false;
 }
 
+#ifdef MAZAHAKA_FIX_BACKGROUND_APP_NO_HOLD_MOUSE
+bool
+CheckWindowStateIsOpenedMaZaHaKa()
+{
+	// HWND window = ((psGlobalType *)(RsGlobal.ps))->window; // PSGLOBAL(window)
+	HWND window = PSGLOBAL(window);
+	HWND activeWindow = GetForegroundWindow();
+
+	// bool IsMinimized = (IsIconic(window) != 0); // no used here
+	bool IsActive = (window == activeWindow);
+	return IsActive;
+}
+#endif
 
 
 /*
@@ -194,7 +210,7 @@ const char *_psGetUserFilesFolder()
 							&KeycbData) == ERROR_SUCCESS )
 		{
 			RegCloseKey(hKey);
-			strcat(szUserFiles, "\\GTA Vice City User Files");
+			strcat(szUserFiles, "\\GTA LCS User Files");
 			_psCreateFolder(szUserFiles);
 			return szUserFiles;
 		}	
@@ -1541,7 +1557,7 @@ psSelectDevice()
 		}
 
 		if(bestFsMode < 0){
-			MessageBox(nil, "Cannot find desired video mode", "GTA: Vice City", MB_OK);
+			MessageBox(nil, "Cannot find desired video mode", "GTA: LCS", MB_OK);
 			return FALSE;
 		}
 		GcurSelVM = bestFsMode;
@@ -2006,6 +2022,11 @@ void HandleExit()
 /*
  *****************************************************************************
  */
+//#include "Windows.h"
+//#include <iostream>
+#include "../utils/SetCurrDir.h" // ++ MAZAHAKA
+#include "../utils/ConsoleTools.h" // ++ MAZAHAKA
+#include <iostream>
 int PASCAL
 WinMain(HINSTANCE instance, 
 		HINSTANCE prevInstance	__RWUNUSED__, 
@@ -2018,14 +2039,40 @@ WinMain(HINSTANCE instance,
 	RwChar **argv;
 	SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, nil, SPIF_SENDCHANGE);
 
-#ifndef MASTER
-	if (strstr(cmdLine, "-console"))
+	//#ifndef MASTER
+	// if (strstr(cmdLine, "-console"))
 	{
-		AllocConsole();
-		freopen("CONIN$", "r", stdin);
-		freopen("CONOUT$", "w", stdout);
-		freopen("CONOUT$", "w", stderr);
+#ifdef MAZAHAKA_DEBUG // ++ MAZAHAKA
+             // AllocConsole();
+             // freopen("CONIN$", "r", stdin);
+             // freopen("CONOUT$", "w", stdout);
+             // freopen("CONOUT$", "w", stderr);
+		OpenConsole();
+#else
+#ifndef MAZAHAKA_RELEASE_NO_SHIFT_CONSOLE_AT_START
+		if((GetAsyncKeyState(VK_SHIFT) & 0x8000)) { OpenConsole(); }
+#endif
+#endif
+
+		// mod by diktor SET CURRENT PATH
+		// char currentDir[MAX_PATH]; // STATIC PATH
+		// GetCurrentDirectory(MAX_PATH, currentDir);
+		// printf("DIR: %s\n", currentDir);
+		// memset(currentDir, 0, MAX_PATH);
+		// strncpy(currentDir, "C:\\_GTA_RE\\revc\\reVC_GAME", MAX_PATH);
+		// currentDir[MAX_PATH - 1] = '\0'; // Ensure null-termination
+		// SetCurrentDirectory(currentDir);
+
+		// char currentDir[MAX_PATH]; // dynamic set curr dir to exe
+		// GetModuleFileName(NULL, currentDir, MAX_PATH);
+		// std::string::size_type pos = std::string(currentDir).find_last_of("\\/");
+		// SetCurrentDirectory(std::string(currentDir).substr(0, pos).c_str());
+		if(!gbIsSettedCurrDir) { U_SetCurrentDirectory(); }
 	}
+	//#endif
+
+#ifdef MAZAHAKA_PLUGIN_CODE
+	PLG_Start(); // PLG PLUGIN MAZAHAKA // after setting no debug dir
 #endif
 
 #ifdef USE_CUSTOM_ALLOCATOR

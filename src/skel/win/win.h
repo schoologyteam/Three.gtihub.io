@@ -88,4 +88,14 @@ void CloseClip(void);
 }
 #endif                          /* __cplusplus */
 
+
+//#include "config.h" // ifdef?
+//#ifdef MAZAHAKA_FIX_BACKGROUND_APP_NO_HOLD_MOUSE
+//#include "Windows.h"
+// bool CheckWindowState(HWND window = PSGLOBAL(window));
+//#endif
+#ifdef MAZAHAKA_FIX_BACKGROUND_APP_NO_HOLD_MOUSE
+bool CheckWindowStateIsOpenedMaZaHaKa();
+#endif
+
 #endif /* (!defined(_PLATFORM_WIN_H)) */
