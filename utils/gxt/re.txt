@@ -1,0 +1,839 @@
+{ reLCS - original but modified (were all CAPS) }
+
+[FEH_SGA]
+Start New Game
+
+[FEH_STA]
+Stats
+
+[FEP_STA]
+Stats
+
+[FEH_BRI]
+Brief
+
+[FEH_MAP]
+Map
+
+[FET_OPT]
+Options
+
+[FEL_ENG]
+English
+
+[FEL_FRE]
+French
+
+[FEL_GER]
+German
+
+[FEL_ITA]
+Italian
+
+[FEL_SPA]
+Spanish
+
+[FES_NGA]
+New game
+
+[FES_LOA]
+Load game
+
+{ reLCS - PC lines }
+[FEC_PED]
+Controls On Foot
+
+[FEC_VEH]
+Controls In Vehicle
+
+[FEC_FPR]
+Controls For First Person
+
+[FEC_CMM]
+Common Controls
+
+[FEC_PWL]
+Go Left
+
+[FEC_PWR]
+Go Right
+
+[FEC_PWF]
+Walk Forward
+
+[FEC_PWT]
+Walk towards camera
+
+[FEC_PLB]
+Look Behind.
+
+[FEC_PFR]
+Fire Weapon
+
+[FEC_CLE]
+Cycle Weapon Left
+
+[FEC_CRI]
+Cycle Weapon Right
+
+[FEC_LKT]
+Lock Target
+
+[FEC_PJP]
+Ped Jump
+
+[FEC_PSP]
+Ped Sprint
+
+[FEC_PSH]
+Ped Shoot
+
+[FEC_TLF]
+Next Target To Left
+
+[FEC_TRG]
+Next Target to Right
+
+[FEC_CCM]
+Center Camera Behind player.
+
+[FEC_SZI]
+Sniper Rifle Zoom In
+
+[FEC_SZO]
+Sniper Rifle Zoom Out
+
+[FEC_LKL]
+First Person Look Left
+
+[FEC_LRT]
+First Person Look Right
+
+[FEC_LUP]
+1st Person Look Up
+
+[FEC_LDN]
+1st Person Look Down
+
+[FEC_LBH]
+Look Behind Vehicle
+
+[FEC_LLF]
+Look Left of Vehicle
+
+[FEC_LRG]
+Look Right of Vehicle
+
+[FEC_HRN]
+Horn
+
+[FEC_HBR]
+Vehicle Handbrake
+
+[FEC_ACL]
+Vehicle Accelerate
+
+[FEC_BRK]
+Vehicle Brake
+
+[FEC_TSM]
+Toggle SubMissions
+
+[FEC_CRD]
+Change Radio Station
+
+[FEC_ENT]
+Enter/Exit Vehicle
+
+[FEC_WPN]
+Fire Weapon
+
+[FEC_PAS]
+Pause
+
+[FEC_FPO]
+1st Person Weapons
+
+[FEC_SMS]
+Show mouse pointer
+
+[FEC_CMS]
+Change camera mode all situations.
+
+[FEC_TSS]
+Take Screen Shot
+
+[FEC_DBG]
+DEBUG MENU
+
+[FEC_TGD]
+Toggle Pad Game/Debug
+
+[FEC_TDO]
+Turn Debug Camera Off
+
+[FEC_IVH]
+Invert Mouse Horizontally:
+
+[FEC_MSL]
+LMB
+
+[FEC_MSM]
+MMB
+
+[FEC_MSR]
+RMB
+
+[FEC_QUE]
+???
+
+[FEC_TWO]
+Only Two Keyboard Keys Allowed
+
+[FEC_UMS]
+Unique Mouse Keys only please.
+
+[FEC_OMS]
+Only One Mouse Keys Allowed
+
+[FEC_UJS]
+Unique Joystick buttons only please.
+
+[FEC_OJS]
+Only One Joystick Buttons per action allowed
+
+[FEC_PTL]
+Use LockTarget with Weapon Switch Left.
+
+[FEC_PTR]
+Use LockTarget with Weapon Switch Right.
+
+[FEC_LBC]
+Use Look Left With Look Right.
+
+[FEC_JBO]
+JOY ~1~
+
+[FEC_WAR]
+Warning
+
+[FEC_OKK]
+O.K.
+
+[FEC_DLF]
+Delete Failed.
+
+[FEC_SVU]
+Save Unsuccessful.
+
+[FEC_LUN]
+Load Unsuccessful. File Corrupted, Please delete.
+
+[FEC_PAD]
+Gamepad
+
+[FEC_JOY]
+Joystick
+
+[FES_CSA]
+Select a skin from the list below:
+
+[FET_HRD]
+DEFAULT SETTINGS RESTORED
+
+[FET_MST]
+MOUSE CONTROLLED STEERING:
+
+[FEC_STR]
+NUM STAR
+
+[FET_MIG]
+LEFT, RIGHT, MOUSEWHEEL TO ADJUST
+
+[FET_CIG]
+BACKSPACE TO CLEAR - LMB, RETURN TO CHANGE
+
+[FET_DSN]
+Default Player Skin.bmp
+
+[FET_RSO]
+ORIGINAL SETTING RESTORED
+
+[FET_RSC]
+HARDWARE NOT AVAILABLE - ORIGINAL SETTING RESTORED
+
+[FEA_3DH]
+AUDIO HARDWARE:
+
+[FEA_SPK]
+SPEAKERS CONFIGURATION:
+
+[FEM_LOD]
+DRAW DISTANCE:
+
+[FEM_VSC]
+FRAME SYNC:
+
+[FEM_FRM]
+FRAME LIMITER:
+
+[FEM_MM]
+MAIN MENU
+
+[FED_RES]
+SCREEN RESOLUTION:
+
+[FET_CTL]
+CONTROLLER SETUP
+
+[FEC_MSH]
+MOUSE SENSITIVITY:
+
+[FEC_IVV]
+INVERT MOUSE VERTICALLY:
+
+[FEC_FNC]
+F~1~
+
+[FEC_IRT]
+INS
+
+[FEC_DLL]
+DEL
+
+[FEC_HME]
+HOME
+
+[FEC_END]
+END
+
+[FEC_PGU]
+PGUP
+
+[FEC_PGD]
+PGDN
+
+[FEC_UPA]
+UP
+
+[FEC_DWA]
+DOWN
+
+[FEC_LFA]
+LEFT
+
+[FEC_RFA]
+RIGHT
+
+[FEC_NUM]
+NUM
+
+[FEC_NMN]
+NUM~1~
+
+[FEC_FWS]
+NUM /
+
+[FEC_PLS]
+NUM +
+
+[FEC_MIN]
+NUM -
+
+[FEC_DOT]
+NUM .
+
+[FEC_NLK]
+NUMLOCK
+
+[FEC_ETR]
+ENT
+
+[FEC_SLK]
+SCROLL LOCK
+
+[FEC_PSB]
+BREAK
+
+[FEC_BSP]
+BSPACE
+
+[FEC_TAB]
+TAB
+
+[FEC_CLK]
+CAPSLOCK
+
+[FEC_RTN]
+RET
+
+[FEC_LSF]
+LSHIFT
+
+[FEC_RSF]
+RSHIFT
+
+[FEC_LCT]
+LCTRL
+
+[FEC_RCT]
+RCTRL
+
+[FEC_LAL]
+LALT
+
+[FEC_RAL]
+RALT
+
+[FEC_LWD]
+LWIN
+
+[FEC_RWD]
+RWIN
+
+[FEC_WRC]
+WINCLICK
+
+[FEC_SPC]
+SPC
+
+[WIN_TTL]
+Grand Theft Auto LCS
+
+[WIN_95]
+Grand Theft Auto LCS cannot run on Windows 95
+
+[WIN_DX]
+Grand Theft Auto LCS requires at least DirectX version 8.1
+
+[FET_EIG]
+CANNOT SET A CONTROL FOR THIS ACTION
+
+[FET_DAM]
+DYNAMIC ACOUSTIC MODELING:
+
+[FEQ_SRE]
+Are you sure you want to quit? All progress since the last save game will be lost. Proceed?
+
+[FEQ_SRW]
+Are you sure you want to quit the game?
+
+[FET_QG]
+QUIT GAME
+
+[FEN_STA]
+START GAME
+
+[FET_PAU]
+PAUSE MENU
+
+[REPLAY]
+REPLAY
+
+[FEC_ANS]
+Action
+
+[CVT_MSG]
+Converting textures to optimal format for your video card
+
+[FEC_SFT]
+SHIFT
+
+[FEH_VMP]
+VIEW MAP
+
+[FES_DEE]
+Delete Failed! Please try again.
+
+[FES_CMP]
+Save failed! Please try again.
+
+[FESZ_WR]
+Saving current game. Please wait...
+
+[FELD_WR]
+Loading game. Please wait...
+
+[FEDL_WR]
+Deleting saved game. Please wait...
+
+[PCRESRT]
+Starting new game. Please wait...
+
+[FET_STI]
+Standard Controls
+
+[FET_CTI]
+Classic Controls
+
+[FET_PS]
+Player Skin Setup
+
+[FEH_NA]
+OPTION NOT AVAILABLE
+
+[FEH_MPH]
+MOUSE, CURSORS TO MOVE - PGUP, PGDN, MSWHEEL TO ZOOM, L - LEGEND
+
+[NO_PCCD]
+Please insert your GTA Liberty City Stories CD, or press ESC to cancel
+
+[FEH_SSA]
+CURSORS TO MOVE - S TO SAVE TO FILE
+
+[FES_CMI]
+LAST MISSION PASSED
+
+[FET_STS]
+STATS SAVED TO 'STATS.HTML' + 'STATS.TXT'
+
+[WIN_VDM]
+Grand Theft Auto LCS cannot find enough available video memory
+
+[FEC_ERI]
+Error! One or more control actions are not bound to a key or button. Please check all control actions are set
+
+[FEC_TFU]
+Turret + Lean Up
+
+[FEC_TFD]
+Turret + Lean Down
+
+[FET_RIG]
+SELECT A NEW CONTROL FOR THIS ACTION
+
+[FEA_NM3]
+NO MP3 FILES FOUND
+
+[FEA_MPB]
+MP3 VOLUME BOOST:
+
+[CVT_ERR]
+You have run out of disk space. Please make some space on your harddisk before continuing. Press ESC to cancel.
+
+[FEA_ADP]
+AUTO-DETECT HARDWARE
+
+[FEP_STG]
+Start Game
+
+[FEP_OPT]
+Options
+
+[FEP_QUI]
+Quit Game
+
+[FEA_2SP]
+2 Speakers
+
+[FEA_4SP]
+More than 2 speakers
+
+[FEA_EAR]
+Headphones
+
+[FEA_NAH]
+NO AUDIO HARDWARE
+
+[FET_APP]
+APPLY
+
+[FES_SKN]
+SKIN NAME
+
+[FES_DAT]
+DATE
+
+[FES_SET]
+Use Skin
+
+[FET_DEF]
+Restore Defaults
+
+[FESZ_QZ]
+Are you sure you want to save this game?
+
+[FES_SCG]
+Save the current game?
+
+[FES_LCG]
+Load the game and continue playing?
+
+[FEC_FIR]
+Fire
+
+[FEC_NWE]
+Next weapon
+
+[FEC_PWE]
+Previous weapon
+
+[FEC_FOR]
+Forward
+
+[FEC_BAC]
+Backwards
+
+[FEC_LEF]
+Left
+
+[FEC_RIG]
+Right
+
+[FEC_ZIN]
+Zoom in
+
+[FEC_ZOT]
+Zoom out
+
+[FEC_EEX]
+Enter+exit
+
+[FEC_RAD]
+Radio
+
+[FEC_SUB]
+Sub-mission
+
+[FEC_CMR]
+Change camera
+
+[FEC_JMP]
+Jump
+
+[FEC_SPN]
+Sprint
+
+[FEC_HND]
+Handbrake
+
+[FEC_LOL]
+Look left
+
+[FEC_LOR]
+Look right
+
+[FEC_NTR]
+Next target
+
+[FEC_PTT]
+Previous target
+
+[FEC_LBA]
+Look behind
+
+[FEC_CEN]
+Center camera
+
+[FET_CFT]
+ON FOOT
+
+[FET_CCR]
+IN CAR
+
+[FET_CAC]
+ACTION
+
+[FEC_IBT]
+-
+
+[FEC_MXO]
+MXB1
+
+[FEC_MXT]
+MXB2
+
+[FEC_UNB]
+UNBOUND
+
+[FEC_TFL]
+Look left+Turret L
+
+[FEC_TFR]
+Look right+Turret R
+
+[FEC_MWF]
+MS WHEEL UP
+
+[FEC_MWB]
+MS WHEEL DN
+
+[FEC_ORR]
+or
+
+[FEC_NUS]
+NOT USED
+
+[FEC_LUD]
+Look Up
+
+[FEC_LDU]
+Look Down
+
+[FEC_CMP]
+COMBO: LOOK L+R
+
+[FEC_RED]
+Redefine Controls
+
+[FEC_MOU]
+Mouse Settings
+
+[FEP_RES]
+Resume
+
+{ reLCS updates }
+{ new languages }
+[FEL_JAP]
+JAPANESE
+
+[FEL_POL]
+POLISH
+
+[FEL_RUS]
+RUSSIAN
+
+{ new display menus }
+[FET_GFX]
+Graphics Setup
+
+[FED_MIP]
+MIP MAPPING:
+
+[FED_AAS]
+ANTI ALIASING:
+
+[FED_FIL]
+TEXTURE FILTERING:
+
+[FED_BIL]
+BILINEAR
+
+[FED_TRL]
+TRILINEAR
+
+[FED_WND]
+WINDOWED
+
+[FED_FLS]
+FULLSCREEN
+
+[FEM_CSB]
+CUTSCENE BORDERS:
+
+[FEM_SCF]
+SCREEN FORMAT:
+
+[FEM_ISL]
+MAP MEMORY USAGE:
+
+[FEM_LOW]
+LOW
+
+[FEM_MED]
+MEDIUM
+
+[FEM_HIG]
+HIGH
+
+[FEM_2PR]
+PS2 ALPHA TEST:
+
+[FEC_FRC]
+FREE CAM:
+
+{ Linux joy detection }
+[FEC_JOD]
+Detect Joystick
+
+[FEC_JPR]
+Press any key on the joystick of your choice that you want to use on the game, and it will be selected.
+
+[FEC_JDE]
+Detected joystick
+
+{ mission restart }
+[FET_RMS]
+REPLAY MISSION
+
+[FESZ_RM]
+RETRY?
+
+[FED_VPL]
+VEHICLE PIPELINE:
+
+[FED_PRM]
+PED RIM LIGHT:
+
+[FED_RGL]
+ROAD GLOSS:
+
+[FED_CLF]
+COLOUR FILTER:
+
+[FED_WLM]
+WORLD LIGHTMAPS:
+
+[FED_MBL]
+MOTION BLUR:
+
+[FEM_SIM]
+SIMPLE
+
+[FEM_NRM]
+NORMAL
+
+[FEM_MOB]
+MOBILE
+
+[FED_MFX]
+MATFX
+
+[FED_NEO]
+NEO
+
+[FEM_PS2]
+PS2
+
+[FEM_XBX]
+XBOX
+
+[FEM_NON]
+NONE
+
+[FEC_IVP]
+INVERT PAD VERTICALLY
+
+[FEC_DS2]
+DUALSHOCK 2
+
+[FEC_DS3]
+DUALSHOCK 3
+
+[FEC_DS4]
+DUALSHOCK 4
+
+[FEC_360]
+XBOX 360 CONTROLLER
+
+[FEC_ONE]
+XBOX ONE CONTROLLER
+
+[FEC_TYP]
+GAMEPAD TYPE
+
+[FET_AGS]
+Gamepad Settings
+
+[FEM_AUT] { aspect ratio related }
+AUTO
+
+[FEM_PED]
+PED DENSITY
+
+[FEM_CAR]
+CAR DENSITY
+
+[DUMMY]
+THIS LABEL NEEDS TO BE HERE !!!
+AS THE LAST LABEL DOES NOT GET COMPILED
