@@ -181,6 +181,7 @@ RpAnimBlendClumpInitSkinned(RpClump *clump)
 void
 RpAnimBlendClumpInitNotSkinned(RpClump *clump)
 {
+	//if(!clump) { return; }
 	int numFrames = 0;
 	CAnimBlendClumpData *clumpData;
 	RwFrame *root;

@@ -80,7 +80,9 @@ AnimAssocDesc aStdAnimDescs[] = {
 	{ ANIM_STD_DETONATE,  ASSOC_FADEOUTWHENDONE | ASSOC_PARTIAL },
 	{ ANIM_STD_PUNCH,  ASSOC_FADEOUTWHENDONE | ASSOC_PARTIAL },
 	{ ANIM_STD_PARTIALPUNCH,  ASSOC_FADEOUTWHENDONE | ASSOC_PARTIAL },
-	{ ANIM_STD_KICKGROUND,  ASSOC_FADEOUTWHENDONE | ASSOC_PARTIAL },
+
+	{ ANIM_STD_KICKGROUND,  ASSOC_FADEOUTWHENDONE | ASSOC_PARTIAL }, //--------------------------------------------------------
+
 	{ ANIM_STD_THROW_UNDER,  ASSOC_FADEOUTWHENDONE | ASSOC_PARTIAL },
 	{ ANIM_STD_FIGHT_SHUFFLE_B,  ASSOC_FADEOUTWHENDONE | ASSOC_PARTIAL | ASSOC_HAS_TRANSLATION },
 	{ ANIM_STD_JACKEDCAR_RHS,  ASSOC_DELETEFADEDOUT | ASSOC_PARTIAL },
@@ -1331,9 +1333,15 @@ CAnimManager::CreateAnimAssociation(AssocGroupId groupId, AnimationId animId)
 	return ms_aAnimAssocGroups[groupId].CopyAnimation(animId);
 }
 
+//__declspec(noinline)
 CAnimBlendAssociation*
 CAnimManager::GetAnimAssociation(AssocGroupId groupId, AnimationId animId)
 {
+	/*if(groupId == AssocGroupId::ASSOCGRP_KNIFE) {
+		// animId = AnimationId::ANIM_BIKE_HIT;
+		debug("\n\n");
+	}
+	auto b = ms_aAnimAssocGroups[groupId].assocList[animId - ms_aAnimAssocGroups[groupId].firstAnimId];*/
 	return ms_aAnimAssocGroups[groupId].GetAnimation(animId);
 }
 
@@ -1383,9 +1391,42 @@ CAnimManager::AddAnimationAndSync(RpClump *clump, CAnimBlendAssociation *syncani
 	return anim;
 }
 
+__declspec(noinline)
+//MAZAHAKA_ANIM_STUFF
+//#include "PlayerInfo.h" // find func
+//#include "PlayerPed.h"
 CAnimBlendAssociation*
 CAnimManager::BlendAnimation(RpClump *clump, AssocGroupId groupId, AnimationId animId, float delta)
 {
+	// reVC My dumper Mazahaka anims player
+	/*if(FindPlayerPed() && FindPlayerPed()->GetClump() == clump) // only player anims debug
+	{
+		debug("anim groupId: %d\n", groupId);
+		debug("anim animId: %d\n\n", animId);
+	}*/
+
+	/*if(groupId == AssocGroupId::ASSOCGRP_KNIFE)
+	{
+		if(!animId) { animId = (AnimationId)205; } // debug from vice
+		assert(animId);
+		//animId = AnimationId::ANIM_BIKE_HIT;
+		debug("\n\n");
+	}*/
+
+	/*if(animId == 60) { // kickground
+		debug("groupid: %d\n", groupId);
+		debug("\n\n");
+		//if(animId == 60) { animId = (AnimationId)65; } // reVC
+		if(animId == 60) { groupId = (AssocGroupId)0; } // reVC kick 0:65 fix 0:60
+	} else if(groupId == 7 || groupId == 9) {
+		debug("groupId: %d\n", groupId);
+		debug("animId: %d\n", animId);
+	}*/
+	// crash kick+katana
+	// groupId 7,9
+	// animId 60
+
+
 	int removePrevAnim = 0;
 	CAnimBlendClumpData *clumpData = *RPANIMBLENDCLUMPDATA(clump);
 	CAnimBlendAssociation *anim = GetAnimAssociation(groupId, animId);
@@ -1430,6 +1471,7 @@ CAnimManager::BlendAnimation(RpClump *clump, AssocGroupId groupId, AnimationId a
 	return found;
 }
 
+//__declspec(noinline) // 4 debug breakpoints
 void
 CAnimManager::LoadAnimFiles(void)
 {
@@ -1438,6 +1480,7 @@ CAnimManager::LoadAnimFiles(void)
 	CreateAnimAssocGroups();
 }
 
+//__declspec(noinline) // 4 debug breakpoints
 void
 CAnimManager::CreateAnimAssocGroups(void)
 {
@@ -1449,6 +1492,7 @@ CAnimManager::CreateAnimAssocGroups(void)
 			continue;
 
 		CBaseModelInfo *mi = CModelInfo::GetModelInfo(ms_aAnimAssocDefinitions[i].modelIndex);
+		//if(!mi) { continue; } // mazahaka
 		RpClump *clump = (RpClump*)mi->CreateInstance();
 		RpAnimBlendClumpInit(clump);
 		CAnimBlendAssocGroup *group = &ms_aAnimAssocGroups[i];
@@ -1465,6 +1509,7 @@ CAnimManager::CreateAnimAssocGroups(void)
 	}
 }
 
+//__declspec(noinline) // 4 debug breakpoints
 void
 CAnimManager::LoadAnimFile(const char *filename)
 {
@@ -1475,6 +1520,8 @@ CAnimManager::LoadAnimFile(const char *filename)
 	RwStreamClose(stream, nil);
 }
 
+//#include <iostream>
+//__declspec(noinline) // 4 debug breakpoints
 void
 CAnimManager::LoadAnimFile(RwStream *stream, bool compress, char (*uncompressedAnims)[32])
 {
@@ -1511,7 +1558,8 @@ CAnimManager::LoadAnimFile(RwStream *stream, bool compress, char (*uncompressedA
 	animBlock->isLoaded = true;
 
 	int animIndex = animBlock->firstIndex;
-	for(j = 0; j < animBlock->numAnims; j++){
+	for(j = 0; j < animBlock->numAnims; j++)
+	{
 		assert(animIndex < ARRAY_SIZE(ms_aAnimations));
 		CAnimBlendHierarchy *hier = &ms_aAnimations[animIndex++];
 
@@ -1520,6 +1568,13 @@ CAnimManager::LoadAnimFile(RwStream *stream, bool compress, char (*uncompressedA
 		ROUNDSIZE(name.size);
 		RwStreamRead(stream, buf, name.size);
 		hier->SetName(buf);
+		//continue;
+
+		//------MAZAHAKA----DUMP-----ANIMS
+		//std::cout << hier->name << "\n";
+		//--------------------------------
+
+
 
 #ifdef ANIM_COMPRESSION
 		bool compressHier = compress;
@@ -1551,7 +1606,8 @@ CAnimManager::LoadAnimFile(RwStream *stream, bool compress, char (*uncompressedA
 		for(k = 0; k < hier->numSequences; k++, seq++){
 			// Each node has a name and key frames
 			RwStreamRead(stream, &cpan, sizeof(IfpHeader));
-			ROUNDSIZE(dgan.size);
+			//ROUNDSIZE(dgan.size); // bug?
+			ROUNDSIZE(cpan.size);
 			RwStreamRead(stream, &anim, sizeof(IfpHeader));
 			ROUNDSIZE(anim.size);
 			RwStreamRead(stream, buf, anim.size);

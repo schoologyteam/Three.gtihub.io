@@ -59,11 +59,16 @@ CAnimBlendAssociation::FreeAnimBlendNodeArray(void)
 		RwFreeAlign(nodes);
 }
 
+//__declspec(noinline) // 4 dbg
 void
 CAnimBlendAssociation::Init(RpClump *clump, CAnimBlendHierarchy *hier)
 {
 	int i;
 	AnimBlendFrameData *frame;
+	assert(hier);
+	/*if(!hier) {
+		debug("\n\n\n");
+	}*/
 
 	CAnimBlendClumpData *clumpData = *RPANIMBLENDCLUMPDATA(clump);
 	numNodes = clumpData->numFrames;

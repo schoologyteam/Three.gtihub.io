@@ -175,6 +175,7 @@ CAnimBlendAssocGroup::CreateAssociations(const char *name)
 }
 
 // Create associations from hierarchies for a given clump
+//__declspec(noinline) // 4 debug
 void
 CAnimBlendAssocGroup::CreateAssociations(const char *blockName, RpClump *clump, const char **animNames, int numAssocs)
 {
@@ -183,6 +184,11 @@ CAnimBlendAssocGroup::CreateAssociations(const char *blockName, RpClump *clump, 
 	DestroyAssociations();
 
 	animBlock = CAnimManager::GetAnimationBlock(blockName);
+	//assert(animBlock);
+	//if(!animBlock) {
+	//animBlock = CAnimManager::GetAnimationBlock(blockName); // 4 debug research need name
+	//}
+	debug("Loading anim \"%s\"\n", blockName);
 	assocList = new CAnimBlendAssociation[numAssocs];
 
 	numAssociations = 0;

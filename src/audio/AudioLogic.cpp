@@ -11928,7 +11928,7 @@ cAudioManager::ProcessMissionAudioSlot(uint8 slot)
 						SampleManager.SetChannelVolume(slot + CHANNEL_MISSION_AUDIO_1, Vol);
 						SampleManager.SetChannelPan(slot + CHANNEL_MISSION_AUDIO_1, pan);
 					}
-					SampleManager.StartChannel(slot + CHANNEL_MISSION_AUDIO_1);
+					SampleManager.StartChannel(slot + CHANNEL_MISSION_AUDIO_1); // mazahakabug crash mono to stereo
 				}
 				m_nMissionAudioPlayStatus[slot] = PLAY_STATUS_PLAYING;
 				nCheckPlayingDelay[slot] = 30;

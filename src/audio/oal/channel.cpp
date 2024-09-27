@@ -17,7 +17,11 @@ bool bChannelsCreated = false;
 
 int32 CChannel::channelsThatNeedService = 0;
 
-uint8 tempStereoBuffer[PED_BLOCKSIZE * 2];
+#ifdef MAZAHAKA_TRY_SFX_FIX
+uint8 tempStereoBuffer[PED_BLOCKSIZE * 2 * 2];
+#else
+uint8 tempStereoBuffer[PED_BLOCKSIZE * 2]; // crash vic3 'VIC3_AA'
+#endif
 
 void
 CChannel::InitChannels()

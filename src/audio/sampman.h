@@ -262,17 +262,16 @@ public:
 extern cSampleManager SampleManager;
 extern uint32 BankStartOffset[MAX_SFX_BANKS];
 
-static char StreamedNameTable[][40] = {
-	"AUDIO\\MUSIC\\HEAD",
-	"AUDIO\\MUSIC\\DOUBLE",
-	"AUDIO\\MUSIC\\KJAH",
-	"AUDIO\\MUSIC\\RISE",
-	"AUDIO\\MUSIC\\LIPS",
-	"AUDIO\\MUSIC\\MUNDO",
-	"AUDIO\\MUSIC\\MSX",
+static char StreamedNameTable[][39] = {
 	"AUDIO\\MUSIC\\FLASH",
-	"AUDIO\\MUSIC\\LCJ",
-	"AUDIO\\MUSIC\\LCFR",
+	"AUDIO\\MUSIC\\VROCK",
+	"AUDIO\\MUSIC\\PARADISE",
+	"AUDIO\\MUSIC\\VCPR",
+	"AUDIO\\MUSIC\\VCFL",
+	"AUDIO\\MUSIC\\WAVE",
+	"AUDIO\\MUSIC\\FRESH",
+	"AUDIO\\MUSIC\\ESPANT",
+	"AUDIO\\MUSIC\\EMOTION",
 	"AUDIO\\MUSIC\\MISCOM2",
 	"AUDIO\\MUSIC\\CITY",
 	"AUDIO\\MUSIC\\WATER",

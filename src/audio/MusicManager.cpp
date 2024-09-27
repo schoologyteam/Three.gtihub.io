@@ -75,7 +75,7 @@ cMusicManager::ResetMusicAfterReload()
 	float afRadioTime[NUM_RADIOS];
 
 	m_bRadioSetByScript = FALSE;
-	m_nRadioStationScript = WILDSTYLE;
+	m_nRadioStationScript = FLASH_FM;
 	m_nRadioPosition = -1;
 	m_nAnnouncement = NO_TRACK;
 	m_bAnnouncementInProgress = FALSE;
@@ -183,7 +183,7 @@ cMusicManager::Initialise()
 		m_bResetTimers = FALSE;
 		m_nResetTime = 0;
 		m_bRadioSetByScript = FALSE;
-		m_nRadioStationScript = WILDSTYLE;
+		m_nRadioStationScript = FLASH_FM;
 		m_nRadioPosition = -1;
 		m_nRadioInCar = NO_TRACK;
 		gRetuneCounter = 0;
@@ -258,7 +258,7 @@ cMusicManager::PlayerInCar()
 uint32
 cMusicManager::GetRadioInCar(void)
 {
-	if (!m_bIsInitialised) return WILDSTYLE;
+	if (!m_bIsInitialised) return FLASH_FM;
 	if (PlayerInCar()) {
 		CVehicle* veh = AudioManager.FindVehicleOfPlayer();
 		if (veh != nil) {
@@ -315,7 +315,7 @@ cMusicManager::ChangeMusicMode(uint8 mode)
 
 #ifdef PAUSE_RADIO_IN_FRONTEND
 		// rewind those streams we weren't listening right now
-		for( uint32 i = STREAMED_SOUND_RADIO_HEAD; i < STREAMED_SOUND_CUTSCENE_BIKER; i++ ) {
+		for( uint32 i = STREAMED_SOUND_RADIO_FLASH_FM; i < STREAMED_SOUND_CUTSCENE_BIKER; i++ ) {
 			m_aTracks[i].m_nPosition = GetTrackStartPos(i);
 			m_aTracks[i].m_nLastPosCheckTimer = CTimer::GetTimeInMillisecondsPauseMode();
 		}
@@ -427,7 +427,7 @@ cMusicManager::ServiceFrontEndMode()
 
 #ifdef PAUSE_RADIO_IN_FRONTEND
 	// pause radio
-	for( uint32 i = STREAMED_SOUND_RADIO_HEAD; i < STREAMED_SOUND_CUTSCENE_BIKER; i++ )
+	for( uint32 i = STREAMED_SOUND_RADIO_FLASH_FM; i < STREAMED_SOUND_CUTSCENE_BIKER; i++ )
 		m_aTracks[i].m_nLastPosCheckTimer = CTimer::GetTimeInMillisecondsPauseMode();
 #endif
 
@@ -595,7 +595,7 @@ cMusicManager::ServiceGameMode()
 		if (!m_bRadioStreamReady)
 		{
 			if(vehicle == nil) {
-				m_nFrontendTrack = STREAMED_SOUND_RADIO_LCFR; // huh?
+				m_nFrontendTrack = STREAMED_SOUND_RADIO_EMOTION; // huh?
 				return;
 			}
 			if(m_bRadioSetByScript) {
@@ -1311,22 +1311,37 @@ cMusicManager::DisplayRadioStationName()
 #endif
 			wchar* string = nil;
 			switch (track) {
-			case WILDSTYLE: string = TheText.Get("FEA_FM0"); break;
-			case FLASH_FM: string = TheText.Get("FEA_FM1"); break;
-			case KCHAT: string = TheText.Get("FEA_FM2"); break;
-			case FEVER: string = TheText.Get("FEA_FM3"); break;
-			case V_ROCK: string = TheText.Get("FEA_FM4"); break;
-			case VCPR: string = TheText.Get("FEA_FM5"); break;
-			case RADIO_ESPANTOSO: string = TheText.Get("FEA_FM6"); break;
-			case EMOTION: string = TheText.Get("FEA_FM7"); break;
-			case WAVE: string = TheText.Get("FEA_FM8"); break;
-			case 9: string = TheText.Get("FEA_FM9"); break;
-			case 10:
+			case FLASH_FM: string = TheText.Get("FEA_FM0"); break;
+			case V_ROCK: string = TheText.Get("FEA_FM1"); break;
+			case PARADISE: string = TheText.Get("FEA_FM2"); break;
+			case VCPR: string = TheText.Get("FEA_FM3"); break;
+			case VCFL: string = TheText.Get("FEA_FM4"); break;
+			case WAVE: string = TheText.Get("FEA_FM5"); break;
+			case FRESH: string = TheText.Get("FEA_FM6"); break;
+			case ESPANTOSO: string = TheText.Get("FEA_FM7"); break;
+			case EMOTION: string = TheText.Get("FEA_FM8"); break;
+			case USERTRACK:
 				if (!SampleManager.IsMP3RadioChannelAvailable())
 					return;
 				string = TheText.Get("FEA_MP3"); break;
-			default: string = TheText.Get("FEA_NON"); break;
+			case RADIO_OFF: {
+				// Otherwise RADIO OFF will be seen after pausing-resuming game and Mission Complete text
+				if (!m_bRadioStreamReady || !m_bGameplayAllowsRadio)
+					return;
+
+				extern wchar WideErrorString[];
+
+				string = TheText.Get("FEA_NON");
+				if (string == WideErrorString) {
+					pCurrentStation = nil;
+					return;
+				}
+				break;
+			}
+
+			default: return;
 			};
+
 
 			if (pCurrentStation != string) {
 				pCurrentStation = string;
