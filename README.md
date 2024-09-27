@@ -4,18 +4,18 @@
 
 ## Intro
 
-The aim of this project is to reverse GTA Liberty City Stories.
+The aim of this project is to reverse GTA Vice City Stories.
 
 ## How can I try it?
 
 - reLCS requires game assets to work.
 - Build reLCS or download it from one of the above links (Debug or Release).
 - (Optional) If you want to use optional features, copy the files in /gamefiles folder to your game root folder.
-- Move reLCS.exe to GTA LCS directory and run it.
+- Move reLCS.exe to GTA VCS directory and run it.
 
 ## Preparing the environment for building
 
-You may want to point GTA_LCS_RE_DIR environment variable to GTA LCS root folder if you want executable to be moved there via post-build script.
+You may want to point GTA_VCS_RE_DIR environment variable to GTA VCS root folder if you want executable to be moved there via post-build script.
 
 - For Linux, proceed: [Building on Linux](https://github.com/GTAmodding/re3/wiki/Building-on-Linux)
 - For FreeBSD, proceed: [Building on FreeBSD](https://github.com/GTAmodding/re3/wiki/Building-on-FreeBSD) 
@@ -30,7 +30,7 @@ There are various settings at the very bottom of [config.h](https://github.com/G
 
 > :information_source: **If you choose OpenAL on Windows** You must read [Running OpenAL build on Windows](https://github.com/GTAmodding/re3/wiki/Running-OpenAL-build-on-Windows).
 
-> :information_source: **Did you notice librw?** reLCS uses completely homebrew RenderWare-replacement rendering engine; [librw](https://github.com/aap/librw/). librw comes as submodule of reLCS, but you also can use LIBRW enviorenment variable to specify path to your own librw.
+> :information_source: **Did you notice librw?** reVCS uses completely homebrew RenderWare-replacement rendering engine; [librw](https://github.com/aap/librw/). librw comes as submodule of reLCS, but you also can use LIBRW enviorenment variable to specify path to your own librw.
 
 ## Contributing
 Please read the [Coding Style](https://github.com/GTAmodding/re3/blob/master/CODING_STYLE.md) Document
